@@ -1,19 +1,9 @@
 {
-  buildGoApplication,
-  lib,
-  ginkgo,
-  version,
+  genOpenapi,
+  openapi,
 }:
-buildGoApplication {
-  pname = "";
-  inherit version;
-
-  src = lib.cleanSource ../.;
-  modules = ./gomod2nix.toml;
-
-  nativeCheckInputs = [ ginkgo ];
-
-  checkPhase = ''
-    ginkgo run ./...
-  '';
+genOpenapi {
+  name = "terraform-provider-pfsense";
+  src = openapi;
+  config = ../generator_config.yml;
 }

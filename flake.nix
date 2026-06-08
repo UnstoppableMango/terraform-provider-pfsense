@@ -38,24 +38,25 @@
       imports = with inputs; [ treefmt-nix.flakeModule ];
 
       perSystem =
-        { pkgs, system, ... }:
+        {
+          pkgs,
+          system,
+          inputs',
+          ...
+        }:
         let
-          version = "0.0.1";
+          inherit (inputs'.mangonix.legacyPackages) terraformTools;
         in
         {
-          _module.args.pkgs = import inputs.nixpkgs {
-            inherit system;
-            overlays = with inputs; [ gomod2nix.overlays.default ];
+          packages.default = pkgs.callPackage ./nix {
+            inherit (terraformTools) genOpenapi;
+            openapi = pkgs.callPackage ./nix/openapi.nix { };
           };
-
-          packages.default = pkgs.callPackage ./nix { inherit version; };
-          packages.openapi = pkgs.callPackage ./nix/openapi.nix { };
 
           devShells.default = pkgs.mkShellNoCC {
             packages = with pkgs; [
               direnv
               go
-              gomod2nix
               gopls
               ginkgo
               gnumake
@@ -63,8 +64,6 @@
             ];
 
             GO = "${pkgs.go}/bin/go";
-            GOMOD2NIX = "${pkgs.gomod2nix}/bin/gomod2nix";
-            GINKGO = "${pkgs.ginkgo}/bin/ginkgo";
           };
 
           treefmt.programs = {
