@@ -20,6 +20,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.inputs.systems.follows = "systems";
     };
+
+    mangonix = {
+      url = "github:UnstoppableMango/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.gomod2nix.follows = "gomod2nix";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
   };
 
   outputs =
@@ -40,6 +49,7 @@
           };
 
           packages.default = pkgs.callPackage ./nix { inherit version; };
+          packages.openapi = pkgs.callPackage ./nix/openapi.nix { };
 
           devShells.default = pkgs.mkShellNoCC {
             packages = with pkgs; [
