@@ -7,6 +7,7 @@ require (
 	github.com/pb33f/libopenapi v0.37.3
 	github.com/spf13/cobra v1.10.2
 	github.com/unmango/go v0.16.6
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

@@ -19,8 +19,8 @@ tidy: go.sum nix/gomod2nix.toml
 go.sum: go.mod ${GO_SRC}
 	go mod tidy
 
-internal/config/config.go:
-	@mkdir -p $(@D)
+internal/config/config.go: nix/upstream.nix
+	@mkdir -p $(@D) && rm -f $@
 	cp $$(nix build .#upstream --print-out-paths) $@
 
 nix/gomod2nix.toml: go.sum
