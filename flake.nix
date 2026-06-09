@@ -61,7 +61,12 @@
         in
         {
           packages = {
-            inherit tools openapi upstream;
+            inherit
+              tools
+              openapi
+              upstream
+              config
+              ;
             default = generator;
           };
 
