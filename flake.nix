@@ -50,6 +50,7 @@
           inherit (inputs.globset.lib) globs;
 
           tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
+          upstream = pkgs.callPackage ./nix/upstream.nix { inherit tools; };
           openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
 
           generator = pkgs.callPackage ./nix {
@@ -59,7 +60,7 @@
         in
         {
           packages = {
-            inherit tools openapi;
+            inherit tools openapi upstream;
             default = generator;
           };
 

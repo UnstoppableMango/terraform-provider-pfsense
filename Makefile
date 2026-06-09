@@ -5,7 +5,8 @@ TF_GEN ?= go tool tfplugingen-openapi
 
 GO_SRC := $(shell find . -type f -name '*.go')
 
-build: tidy generate
+build: tidy internal/config/config.go
+	nix build
 
 update:
 	nix flake update
@@ -13,20 +14,14 @@ update:
 check:
 	nix flake check
 
-generate gen: bin/provider_code_spec.json
-
 tidy: go.sum nix/gomod2nix.toml
 
 go.sum: go.mod ${GO_SRC}
 	go mod tidy
 
-bin/provider_code_spec.json: bin/openapi.json generator_config.yml
-	$(TF_GEN) generate $< \
-		--config ./generator_config.yml \
-		--output ./$@
-
-bin/openapi.json:
-	curl --fail https://pfrest.org/api-docs/openapi.json | jq -r >$@
+internal/config/config.go:
+	@mkdir -p $(@D)
+	cp $$(nix build .#upstream --print-out-paths) $@
 
 nix/gomod2nix.toml: go.sum
 	$(GOMOD2NIX) generate --outdir ./nix
