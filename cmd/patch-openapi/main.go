@@ -3,12 +3,21 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/unmango/go/cli"
+	"github.com/unstoppablemango/terraform-provider-pfsense/pkg"
 )
 
 var root = &cobra.Command{
 	Use:   "patch-openapi",
 	Short: "Patches the pfrest OpenAPI spec for conversion into a terraform provider",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		ctx := cmd.Context()
+		src, dest := args[0], args[1]
+
+		if err := pkg.PatchSpec(ctx, src, dest); err != nil {
+			cli.Fail(err)
+		}
+	},
 }
 
 func main() {

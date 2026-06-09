@@ -5,6 +5,11 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     systems.url = "github:nix-systems/default";
 
+    globset = {
+      url = "github:pdtpartners/globset";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -42,12 +47,14 @@
         let
           inherit (inputs'.mangonix.legacyPackages) terraformTools;
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
+          inherit (inputs.globset.lib) globs;
 
-          tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication; };
-          openapi = pkgs.callPackage ./nix/openapi.nix { };
+          tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
+          openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
 
           generator = pkgs.callPackage ./nix {
-            inherit (terraformTools) genOpenapi tools openapi;
+            inherit (terraformTools) genOpenapi;
+            inherit openapi;
           };
         in
         {

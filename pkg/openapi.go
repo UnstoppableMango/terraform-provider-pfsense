@@ -1,15 +1,22 @@
 package pkg
 
 import (
+	"context"
 	"io"
 	"io/fs"
+	"log/slog"
 
+	"charm.land/log/v2"
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/bundler"
+	"github.com/pb33f/libopenapi/datamodel"
 	"github.com/unmango/go/world"
 )
 
-func PatchSpec(os world.Os, src, dest string) error {
+func PatchSpec(ctx context.Context, src, dest string) error {
+	log := log.FromContext(ctx)
+	os := world.FromContext(ctx).Os()
+
 	s, err := os.Open(src)
 	if err != nil {
 		return err
@@ -21,7 +28,11 @@ func PatchSpec(os world.Os, src, dest string) error {
 		return err
 	}
 
-	doc, err := libopenapi.NewDocument(data)
+	cfg := &datamodel.DocumentConfiguration{
+		Logger: slog.New(log),
+	}
+
+	doc, err := libopenapi.NewDocumentWithConfiguration(data, cfg)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,14 @@ TF_GEN ?= go tool tfplugingen-openapi
 
 GO_SRC := $(shell find . -type f -name '*.go')
 
+build: tidy generate
+
+update:
+	nix flake update
+
+check:
+	nix flake check
+
 generate gen: bin/provider_code_spec.json
 
 tidy: go.sum nix/gomod2nix.toml

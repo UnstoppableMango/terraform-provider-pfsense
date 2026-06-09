@@ -2,6 +2,7 @@
   fetchurl,
   python3,
   runCommand,
+  tools,
   version ? "2.8.1",
 }:
 let
@@ -10,6 +11,6 @@ let
     hash = "sha256-Va7wPj+AsrYRGBz/ZEQChJKo10oFSkxAIFNDBAHcIOI=";
   };
 in
-runCommand "openapi.json" { nativeBuildInputs = [ python3 ]; } ''
-  python3 ${./patch-openapi.py} ${raw} $out
+runCommand "openapi.json" { } ''
+  ${tools}/bin/patch-openapi ${raw} $out
 ''
