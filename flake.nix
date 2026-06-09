@@ -52,10 +52,11 @@
           tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
           upstream = pkgs.callPackage ./nix/upstream.nix { inherit tools; };
           openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
+          config = pkgs.callPackage ./nix/config.nix { inherit tools openapi; };
 
           generator = pkgs.callPackage ./nix {
             inherit (terraformTools) genOpenapi;
-            inherit openapi;
+            inherit config openapi;
           };
         in
         {
