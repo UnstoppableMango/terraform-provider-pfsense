@@ -57,7 +57,6 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 	return os.WriteFile(dest, bundled, fs.ModePerm)
 }
 
-// flattenAllOfs merges allOf entries for component schemas into single inline schemas
 func flattenAllOfs(doc *v3.Document, log *log.Logger) {
 	for pair := doc.Components.Schemas.First(); pair != nil; pair = pair.Next() {
 		key := pair.Key()
@@ -100,6 +99,13 @@ func mergeAllOf(proxy *highbase.SchemaProxy, target *highbase.Schema) {
 	schema := proxy.Schema()
 	if schema == nil {
 		return
+	}
+
+	// If this schema itself has allOf entries, merge them first (recursive)
+	if len(schema.AllOf) > 0 {
+		for _, sp := range schema.AllOf {
+			mergeAllOf(sp, target)
+		}
 	}
 
 	if schema.Properties != nil {
