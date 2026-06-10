@@ -47,7 +47,7 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 
 	if m := model.Model; m.Components != nil {
 		// flatten top-level component schemas and all other schema locations in the document
-		flattenAllOfsInDocument(&m, log)
+		flattenAllOfs(&m)
 	}
 
 	bundled, err := bundler.BundleDocument(&model.Model)
@@ -56,40 +56,6 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 	}
 
 	return os.WriteFile(dest, bundled, fs.ModePerm)
-}
-
-func flattenAllOfs(doc *v3.Document, log *log.Logger) {
-	for pair := doc.Components.Schemas.First(); pair != nil; pair = pair.Next() {
-		key := pair.Key()
-		proxy := pair.Value()
-		if proxy == nil {
-			continue
-		}
-
-		schema := proxy.Schema()
-		if schema == nil || len(schema.AllOf) == 0 {
-			continue
-		}
-
-		log.Info("Flattening", "schema", key)
-		// create a shallow copy of the parent schema and clear AllOf
-		merged := &highbase.Schema{}
-		*merged = *schema
-		merged.AllOf = nil
-
-		// ensure properties map exists
-		if merged.Properties == nil {
-			merged.Properties = orderedmap.New[string, *highbase.SchemaProxy]()
-		}
-
-		// merge each allOf schema into merged
-		for _, ap := range schema.AllOf {
-			mergeAllOf(ap, merged)
-		}
-
-		newProxy := highbase.CreateSchemaProxy(merged)
-		doc.Components.Schemas.Set(key, newProxy)
-	}
 }
 
 func mergeAllOf(proxy *highbase.SchemaProxy, target *highbase.Schema) {
@@ -215,8 +181,8 @@ func flattenResponse(r *v3.Response) {
 	}
 }
 
-// flattenAllOfsInDocument walks the document and flattens allOf entries across components and paths.
-func flattenAllOfsInDocument(doc *v3.Document, log *log.Logger) {
+// flattenAllOfs walks the document and flattens allOf entries across components and paths.
+func flattenAllOfs(doc *v3.Document) {
 	if doc == nil {
 		return
 	}
