@@ -29,7 +29,10 @@ func TestFlattenAllOfs(t *testing.T) {
 
 	// parent schema that allOfs base and other (inline in path)
 	parent := &highbase.Schema{}
-	parent.AllOf = []*highbase.SchemaProxy{highbase.CreateSchemaProxy(base), highbase.CreateSchemaProxy(other)}
+	parent.AllOf = []*highbase.SchemaProxy{
+		highbase.CreateSchemaProxy(base),
+		highbase.CreateSchemaProxy(other),
+	}
 
 	// build operation with request body that uses parent as schema
 	op := &v3.Operation{}
