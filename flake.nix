@@ -26,6 +26,15 @@
       inputs.flake-utils.inputs.systems.follows = "systems";
     };
 
+    a2b = {
+      url = "github:UnstoppableMango/a2b?ref=nix-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.gomod2nix.follows = "gomod2nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
     mangonix = {
       url = "github:UnstoppableMango/nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,13 +58,15 @@
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
           inherit (inputs.globset.lib) globs;
 
+          a2b = inputs'.a2b.legacyPackages.lib;
+
           tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
           upstream = pkgs.callPackage ./nix/upstream.nix { inherit tools; };
           openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
           config = pkgs.callPackage ./nix/config.nix { inherit tools openapi; };
 
           generator = pkgs.callPackage ./nix {
-            inherit (terraformTools) genOpenapi;
+            inherit (a2b.terraform) buildProviderSpec;
             inherit config openapi;
           };
         in

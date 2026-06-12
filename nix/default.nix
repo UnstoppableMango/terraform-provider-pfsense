@@ -1,9 +1,9 @@
 {
   config,
-  genOpenapi,
+  buildProviderSpec,
   openapi,
 }:
-genOpenapi {
+buildProviderSpec {
   name = "terraform-provider-pfsense";
   src = openapi;
   inherit config;
