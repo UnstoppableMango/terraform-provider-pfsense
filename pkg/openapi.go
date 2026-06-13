@@ -53,7 +53,7 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 		return err
 	}
 
-	return os.WriteFile(dest, bundled, fs.ModePerm)
+	return os.WriteFile(dest, bundled, 0o644)
 }
 
 func mergeAllOf(proxy *highbase.SchemaProxy, target *highbase.Schema) {
