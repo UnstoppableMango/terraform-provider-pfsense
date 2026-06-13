@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"io"
-	"io/fs"
 	"log/slog"
 
 	"charm.land/log/v2"

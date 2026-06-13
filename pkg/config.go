@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"io"
-	"io/fs"
 
 	"charm.land/log/v2"
 	"github.com/pb33f/libopenapi"
