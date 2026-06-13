@@ -45,10 +45,8 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 		return err
 	}
 
-	if m := model.Model; m.Components != nil {
-		// flatten top-level component schemas and all other schema locations in the document
-		flattenAllOfs(&m)
-	}
+	// flatten top-level component schemas and all other schema locations in the document
+	flattenAllOfs(&model.Model)
 
 	bundled, err := bundler.BundleDocument(&model.Model)
 	if err != nil {
