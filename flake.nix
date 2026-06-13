@@ -60,7 +60,7 @@
             inherit config openapi;
           };
 
-          provider = pkgs.callPackage ./nix {
+          provider = pkgs.callPackage ./nix/provider.nix {
             inherit (a2b.terraform) genProvider;
             input = spec;
           };
