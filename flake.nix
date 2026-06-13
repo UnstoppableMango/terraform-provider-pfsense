@@ -27,20 +27,11 @@
     };
 
     a2b = {
-      url = "github:UnstoppableMango/a2b?ref=nix-nix";
+      url = "github:UnstoppableMango/a2b?ref=even-more-tf";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
       inputs.flake-parts.follows = "flake-parts";
       inputs.gomod2nix.follows = "gomod2nix";
-      inputs.treefmt-nix.follows = "treefmt-nix";
-    };
-
-    mangonix = {
-      url = "github:UnstoppableMango/nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.systems.follows = "systems";
-      inputs.gomod2nix.follows = "gomod2nix";
-      inputs.flake-parts.follows = "flake-parts";
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
   };
@@ -54,7 +45,6 @@
       perSystem =
         { pkgs, inputs', ... }:
         let
-          inherit (inputs'.mangonix.legacyPackages) terraformTools;
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
           inherit (inputs.globset.lib) globs;
 
@@ -65,9 +55,14 @@
           openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
           config = pkgs.callPackage ./nix/config.nix { inherit tools openapi; };
 
-          generator = pkgs.callPackage ./nix {
-            inherit (a2b.terraform) buildProviderSpec;
+          spec = pkgs.callPackage ./nix/provider-spec.nix {
+            inherit (a2b.terraform) genProviderSpec;
             inherit config openapi;
+          };
+
+          provider = pkgs.callPackage ./nix {
+            inherit (a2b.terraform) genProvider;
+            input = spec;
           };
         in
         {
@@ -77,8 +72,11 @@
               openapi
               upstream
               config
+              spec
+              provider
               ;
-            default = generator;
+
+            default = provider;
           };
 
           devShells.default = pkgs.mkShellNoCC {
