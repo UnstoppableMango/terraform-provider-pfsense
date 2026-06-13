@@ -27,7 +27,7 @@
     };
 
     a2b = {
-      url = "github:UnstoppableMango/a2b?ref=even-more-tf";
+      url = "github:UnstoppableMango/a2b";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
       inputs.flake-parts.follows = "flake-parts";

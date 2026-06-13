@@ -21,16 +21,15 @@
         "ux": "ux"
       },
       "locked": {
-        "lastModified": 1781312430,
-        "narHash": "sha256-kB1I/NRA3i1wDgnZV/J/Ujrej2K1TI2BtGdWSmdi/Og=",
+        "lastModified": 1781316464,
+        "narHash": "sha256-TXDFBjaJXHIuBKKNSAzEQbCyCPUadJnZz87OBIsnAig=",
         "owner": "UnstoppableMango",
         "repo": "a2b",
-        "rev": "f985b340e72338cf63b982705af04e568422422c",
+        "rev": "22f8f3d889efefb417b5fd3cdddc24161c5e24a3",
         "type": "github"
       },
       "original": {
         "owner": "UnstoppableMango",
-        "ref": "even-more-tf",
         "repo": "a2b",
         "type": "github"
       }
