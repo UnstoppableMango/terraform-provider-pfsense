@@ -56,7 +56,7 @@ func GenerateConfig(ctx context.Context, src, dest string) error {
 	}
 
 	log.Info("Writing generated config", "dest", dest)
-	return os.WriteFile(dest, out, fs.ModePerm)
+	return os.WriteFile(dest, out, 0o644)
 }
 
 func ConfigFor(ctx context.Context, doc *v3.Document) (*config.Config, error) {
