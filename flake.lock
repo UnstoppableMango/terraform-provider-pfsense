@@ -21,11 +21,11 @@
         "ux": "ux"
       },
       "locked": {
-        "lastModified": 1781310445,
-        "narHash": "sha256-p9IrfqLGziCtgdFtmeRnvSBkvCJjGyrb6DgoxiaGqx4=",
+        "lastModified": 1781312430,
+        "narHash": "sha256-kB1I/NRA3i1wDgnZV/J/Ujrej2K1TI2BtGdWSmdi/Og=",
         "owner": "UnstoppableMango",
         "repo": "a2b",
-        "rev": "afe859d512d5a9378895b287e3d78a79d90b8c06",
+        "rev": "f985b340e72338cf63b982705af04e568422422c",
         "type": "github"
       },
       "original": {
