@@ -1,5 +1,5 @@
 {
-  description = "A Nix flake";
+  description = "A Terraform Provider for pfSense";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
