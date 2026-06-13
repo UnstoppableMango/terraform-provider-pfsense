@@ -6,5 +6,5 @@
 genProviderSpec {
   name = "schema.json";
   inherit config;
-  src = openapi;
+  openapi-spec = openapi;
 }
