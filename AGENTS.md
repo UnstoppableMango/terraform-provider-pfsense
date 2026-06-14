@@ -27,7 +27,7 @@ nix build .#tools       # CLI tools binary
 nix build .#openapi     # patched pfSense OpenAPI spec
 nix build .#config      # generated tfplugingen-openapi config YAML
 nix build .#spec        # generated provider schema JSON
-nix build .#provider    # final provider binary (default)
+nix build .#provider    # generated provider Go source (default)
 ```
 
 ## Architecture
@@ -41,7 +41,7 @@ This project generates a Terraform provider for pfSense entirely from the pfSens
 3. **`nix/openapi.nix`** — fetches the pfSense REST API OpenAPI JSON from GitHub releases and runs `patch-openapi` to flatten `allOf` entries, producing a spec compatible with the HashiCorp generator.
 4. **`nix/config.nix`** — runs `gen-config` to produce a `config.yaml` (tfplugingen-openapi generator config) from the patched OpenAPI spec.
 5. **`nix/provider-spec.nix`** — calls `a2b`'s `genProviderSpec` (wraps `tfplugingen-openapi`) with the config and OpenAPI spec to produce `schema.json`.
-6. **`nix/provider.nix`** — calls `a2b`'s `genProvider` (wraps `tfplugingensdk`) with the schema to produce the final provider binary.
+6. **`nix/provider.nix`** — calls `a2b`'s `genProvider` (wraps `tfplugingensdk`) with the schema to produce generated provider Go source. Compilation into a final provider binary is not yet complete.
 
 ### Go code roles
 

@@ -36,7 +36,7 @@ High-level architecture (big-picture)
   3. Fetch pfSense OpenAPI JSON and run patch-openapi to flatten allOfs (nix/openapi.nix → pkg/PatchSpec).
   4. Generate the tfplugingen-openapi config.yaml from the patched spec (nix/config.nix → pkg/GenerateConfig).
   5. Produce schema.json via genProviderSpec (nix/provider-spec.nix).
-  6. Generate the provider binary via genProvider (nix/provider.nix).
+  6. Generate provider Go source via genProvider (nix/provider.nix). Compilation into a final provider binary is not yet complete.
 
 - Go code responsibilities:
   - cmd/patch-openapi: PatchSpec entrypoint (pkg.PatchSpec) — flattens allOf entries and bundles spec.
