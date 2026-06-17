@@ -6,7 +6,13 @@ TF_GEN ?= go tool tfplugingen-openapi
 GO_SRC := $(shell find . -type f -name '*.go')
 
 build: tidy internal/config/config.go
-	nix build
+	nix build .#binary
+
+.PHONY: provider-deps
+provider-deps:
+	go get github.com/hashicorp/terraform-plugin-framework@latest
+	go get github.com/hashicorp/terraform-plugin-framework-validators@latest
+	$(MAKE) tidy
 
 update:
 	nix flake update

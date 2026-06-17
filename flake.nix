@@ -64,6 +64,16 @@
             inherit (a2b.terraform) genProvider;
             input = spec;
           };
+
+          scaffold = pkgs.callPackage ./nix/scaffold.nix {
+            inherit (a2b.terraform) scaffold;
+          };
+
+          binary = pkgs.callPackage ./nix/binary.nix {
+            inherit buildGoApplication globs;
+            generated = provider;
+            scaffolded = scaffold;
+          };
         in
         {
           packages = {
@@ -74,9 +84,11 @@
               config
               spec
               provider
+              scaffold
+              binary
               ;
 
-            default = provider;
+            default = binary;
           };
 
           devShells.default = pkgs.mkShellNoCC {

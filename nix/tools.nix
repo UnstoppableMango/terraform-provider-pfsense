@@ -11,6 +11,12 @@ buildGoApplication {
   version = "0.1.0";
   modules = ./gomod2nix.toml;
 
+  subPackages = [
+    "cmd/gen-config"
+    "cmd/patch-openapi"
+    "cmd/slurp-source"
+  ];
+
   src = fs.toSource {
     root = ../.;
     fileset = globs ../. [

@@ -1,5 +1,5 @@
 bin/
-/result
+/result*
 .claude/
 .envrc
 .direnv/
