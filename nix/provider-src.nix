@@ -35,6 +35,14 @@ symlinkJoin {
       name = "terraform-provider-pfsense";
       inherit input;
     })
+    (scaffold {
+      command = "provider";
+      name = "pfSense";
+      scaffoldName = "pfsense";
+
+      # a2b scaffold does not pre-create $out; preRun hook does it
+      env.preRun = "mkdir -p $out";
+    })
   ]
   ++ map toScaffold schema.resources;
 }
