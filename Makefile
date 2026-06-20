@@ -15,6 +15,9 @@ update:
 check:
 	nix flake check
 
+tidy:
+	$(MAKE) -C nix/tools tidy
+
 nix/go.mod.patch: ${NIX_SRC}
 	nix run .#bin.src.goModPatch -- $@
 
@@ -24,7 +27,3 @@ nix/gomod2nix.toml: nix/go.mod.patch
 go.mod go.sum &: nix/go.mod.patch
 	nix build .#bin.src
 	install -m 444 result/go.{mod,sum} ${CURDIR}/
-
-.PHONY: nix/tools
-nix/tools:
-	$(MAKE) -C $@
