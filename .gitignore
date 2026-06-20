@@ -1,5 +1,6 @@
 bin/
 /result*
+nix/tools/result*
 .claude/
 .envrc
 .direnv/
