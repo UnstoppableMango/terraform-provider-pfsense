@@ -66,14 +66,22 @@ let
     '';
   };
 
-  # patched = goSrc.overrideAttrs (oldAttrs: {
-  #   patches = [ ./go.mod.patch ];
-  # });
-
   patched = stdenv.mkDerivation {
     name = "patched-src";
-    src = goSrc;
+    src = null;
+    dontUnpack = true;
+
+    prePatch = ''
+      cp ${goSrc}/go.mod go.mod
+    '';
+
     patches = [ ./go.mod.patch ];
+
+    buildPhase = ''
+      mkdir -p $out
+      cp go.mod $out/go.mod
+      cp go.sum $out/go.sum
+    '';
   };
 
   gomod2nixToml = writeShellApplication {
