@@ -2,18 +2,19 @@
   genProvider,
   go,
   gomod2nix,
-  input,
+  schemaFile,
   lib,
   runCommand,
   scaffold,
   stdenv,
   symlinkJoin,
+  tools,
   writeShellApplication,
 }:
 let
   fs = lib.fileset;
   goPackage = "github.com/unstoppablemango/terraform-provider-pfsense";
-  schema = builtins.fromJSON (builtins.readFile input);
+  schema = builtins.fromJSON (builtins.readFile schemaFile);
 
   toScaffold =
     resource:
@@ -35,6 +36,14 @@ let
       '';
     };
 
+  patchedProvider = runCommand "provider_pfsense" { } ''
+    mkdir -p $out/provider_pfsense
+    ${tools}/bin/patch-provider \
+      ${../provider_pfsense/provider.go} \
+      ${schemaFile} \
+      > $out/provider_pfsense/provider.go
+  '';
+
   goSrc = symlinkJoin {
     name = "go-src";
     paths = [
@@ -42,9 +51,10 @@ let
         root = ../.;
         fileset = ../cmd;
       })
+      patchedProvider
       (genProvider {
         name = "terraform-provider-pfsense";
-        inherit input;
+        input = schemaFile;
       })
       (runCommand "go.mod" { } ''
         mkdir -p $out && cd $out
