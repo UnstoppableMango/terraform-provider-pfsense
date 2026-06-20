@@ -46,24 +46,17 @@
         { pkgs, inputs', ... }:
         let
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
-          inherit (inputs.globset.lib) globs;
-
-          tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
-          upstream = pkgs.callPackage ./nix/upstream.nix { inherit tools; };
+          a2b = inputs'.a2b.legacyPackages.lib;
 
           bin = pkgs.callPackage ./nix {
-            inherit buildGoApplication globs tools;
-            a2b = inputs'.a2b.legacyPackages.lib;
+            inherit buildGoApplication a2b;
+            inherit gomod2nix;
           };
         in
         {
           packages = {
-            inherit
-              tools
-              upstream
-              bin
-              ;
-
+            inherit (bin) tools src;
+            inherit bin;
             default = bin;
           };
 

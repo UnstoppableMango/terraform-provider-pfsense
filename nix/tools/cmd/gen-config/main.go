@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/unmango/go/cli"
-	"github.com/unstoppablemango/terraform-provider-pfsense/pkg"
 )
 
 var root = &cobra.Command{
@@ -14,7 +13,7 @@ var root = &cobra.Command{
 		ctx := cmd.Context()
 		src, dest := args[0], args[1]
 
-		if err := pkg.GenerateConfig(ctx, src, dest); err != nil {
+		if err := GenerateConfig(ctx, src, dest); err != nil {
 			cli.Fail(err)
 		}
 	},

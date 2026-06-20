@@ -6,6 +6,7 @@
   lib,
   runCommand,
   scaffold,
+  stdenv,
   symlinkJoin,
   writeShellApplication,
 }:
@@ -56,25 +57,37 @@ let
     ++ map toScaffold schema.resources;
   };
 
-
-in
-symlinkJoin {
-  name = "provider-src";
-  paths = [
-    goSrc
-    goMod
-  ];
-
-  passthru.goMod = writeShellApplication {
-    name = "go-deps";
-
-    runtimeInputs = [
-      go
-      gomod2nix
-    ];
+  goModPatch = writeShellApplication {
+    name = "go.mod.patch.sh";
+    runtimeInputs = [ go ];
 
     text = ''
-
+      go -C ${goSrc} mod tidy -diff > "$1"
     '';
   };
-}
+
+  # patched = goSrc.overrideAttrs (oldAttrs: {
+  #   patches = [ ./go.mod.patch ];
+  # });
+
+  patched = stdenv.mkDerivation {
+    name = "patched-src";
+    src = goSrc;
+    patches = [ ./go.mod.patch ];
+  };
+
+  gomod2nixToml = writeShellApplication {
+    name = "gomod2nix.toml.sh";
+    runtimeInputs = [ gomod2nix ];
+
+    text = ''
+      set -x
+      gomod2nix generate --dir "${patched}" --outdir "$1"
+    '';
+  };
+in
+patched.overrideAttrs (oldAttrs: {
+  passthru = {
+    inherit goModPatch gomod2nixToml;
+  };
+})
