@@ -18,8 +18,8 @@ buildGoApplication {
   ];
 
   src = fs.toSource {
-    root = ../.;
-    fileset = globs ../. [
+    root = ./.;
+    fileset = globs ./. [
       "go.mod"
       "go.sum"
       "**/*.go"

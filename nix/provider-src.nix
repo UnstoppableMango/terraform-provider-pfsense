@@ -1,11 +1,16 @@
 {
   genProvider,
+  go,
+  gomod2nix,
   input,
   lib,
+  runCommand,
   scaffold,
   symlinkJoin,
+  writeShellApplication,
 }:
 let
+  goPackage = "github.com/unstoppablemango/terraform-provider-pfsense";
   schema = builtins.fromJSON (builtins.readFile input);
 
   toScaffold =
@@ -27,22 +32,49 @@ let
         mv $out/${name}.go $out/${package}/
       '';
     };
+
+  goSrc = symlinkJoin {
+    name = "go-src";
+    paths = [
+      (genProvider {
+        name = "terraform-provider-pfsense";
+        inherit input;
+      })
+      (runCommand "go.mod" { } ''
+        mkdir -p $out && cd $out
+        ${go}/bin/go mod init ${goPackage}
+      '')
+      (scaffold {
+        command = "provider";
+        name = "pfSense";
+        scaffoldName = "pfsense";
+
+        # a2b scaffold does not pre-create $out; preRun hook does it
+        env.preRun = "mkdir -p $out";
+      })
+    ]
+    ++ map toScaffold schema.resources;
+  };
+
+
 in
 symlinkJoin {
   name = "provider-src";
   paths = [
-    (genProvider {
-      name = "terraform-provider-pfsense";
-      inherit input;
-    })
-    (scaffold {
-      command = "provider";
-      name = "pfSense";
-      scaffoldName = "pfsense";
+    goSrc
+    goMod
+  ];
 
-      # a2b scaffold does not pre-create $out; preRun hook does it
-      env.preRun = "mkdir -p $out";
-    })
-  ]
-  ++ map toScaffold schema.resources;
+  passthru.goMod = writeShellApplication {
+    name = "go-deps";
+
+    runtimeInputs = [
+      go
+      gomod2nix
+    ];
+
+    text = ''
+
+    '';
+  };
 }
