@@ -3,7 +3,7 @@ _ != mkdir -p bin
 GOMOD2NIX ?= gomod2nix
 NIX_SRC := $(shell find . -name '*.nix')
 
-build:
+build: nix/gomod2nix.toml
 	nix build .#
 
 tools: nix/tools
@@ -17,9 +17,12 @@ check:
 nix/go.mod.patch: ${NIX_SRC}
 	nix run .#bin.src.goModPatch -- $@
 
-go.mod: nix/go.mod.patch
+nix/gomod2nix.toml: nix/go.mod.patch
+	nix run .#bin.src.gomod2nixToml -- ${@D}
+
+go.mod go.sum &: nix/go.mod.patch
 	nix build .#bin.src
-	@cp result/$@ ${CURDIR}/$@
+	install -m 644 result/go.{mod,sum} ${CURDIR}/
 
 .PHONY: nix/tools
 nix/tools:

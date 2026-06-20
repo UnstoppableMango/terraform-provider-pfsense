@@ -11,6 +11,7 @@
   writeShellApplication,
 }:
 let
+  fs = lib.fileset;
   goPackage = "github.com/unstoppablemango/terraform-provider-pfsense";
   schema = builtins.fromJSON (builtins.readFile input);
 
@@ -37,6 +38,10 @@ let
   goSrc = symlinkJoin {
     name = "go-src";
     paths = [
+      (fs.toSource {
+        root = ../.;
+        fileset = ../cmd;
+      })
       (genProvider {
         name = "terraform-provider-pfsense";
         inherit input;
@@ -62,7 +67,7 @@ let
     runtimeInputs = [ go ];
 
     text = ''
-      go -C ${goSrc} mod tidy -diff > "$1"
+      go -C ${goSrc} mod tidy -diff >"$1" || true
     '';
   };
 
@@ -79,8 +84,7 @@ let
 
     buildPhase = ''
       mkdir -p $out
-      cp go.mod $out/go.mod
-      cp go.sum $out/go.sum
+      install go.{mod,sum} $out/
     '';
   };
 
@@ -89,7 +93,6 @@ let
     runtimeInputs = [ gomod2nix ];
 
     text = ''
-      set -x
       gomod2nix generate --dir "${patched}" --outdir "$1"
     '';
   };
