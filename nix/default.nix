@@ -30,6 +30,10 @@ buildGoApplication {
   modules = ./gomod2nix.toml;
   inherit src;
 
+  preBuild = ''
+    ls -l
+  '';
+
   subPackages = [ "cmd/terraform-provider-pfsense" ];
 
   passthru = { inherit spec src tools; };

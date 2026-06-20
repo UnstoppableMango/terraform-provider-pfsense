@@ -3,3 +3,5 @@ bin/
 .claude/
 .envrc
 .direnv/
+/go.mod
+/go.sum

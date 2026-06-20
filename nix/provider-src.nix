@@ -77,14 +77,13 @@ let
     dontUnpack = true;
 
     prePatch = ''
-      cp ${goSrc}/go.mod go.mod
+      cp -rL ${goSrc}/* .
     '';
 
     patches = [ ./go.mod.patch ];
 
     buildPhase = ''
-      mkdir -p $out
-      install go.{mod,sum} $out/
+      cp -r . $out
     '';
   };
 
