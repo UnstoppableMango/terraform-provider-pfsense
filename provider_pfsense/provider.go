@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	// "github.com/unstoppablemango/terraform-provider-pfsense/resource_firewall_rule"
 )
 
 var _ provider.Provider = (*pfsenseProvider)(nil)
@@ -23,17 +22,19 @@ func (p *pfsenseProvider) Metadata(_ context.Context, _ provider.MetadataRequest
 }
 
 func (p *pfsenseProvider) Schema(ctx context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
-	// resp.Schema = PfsenseProviderSchema(ctx)
+	// +pfsense:schema
 }
 
 func (p *pfsenseProvider) Configure(_ context.Context, _ provider.ConfigureRequest, _ *provider.ConfigureResponse) {
+	// +pfsense:configure
 }
 
 func (p *pfsenseProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+	// +pfsense:datasources
 	return nil
 }
 
 func (p *pfsenseProvider) Resources(_ context.Context) []func() resource.Resource {
-	// return []func() resource.Resource{resource_firewall_rule.NewFirewallRuleResource}
+	// +pfsense:resources
 	return nil
 }
