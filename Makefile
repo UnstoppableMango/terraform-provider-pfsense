@@ -6,7 +6,8 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: nix/gomod2nix.toml
 	nix build .#
 
-tools: nix/tools
+tools:
+	nix build .#tools
 
 update:
 	nix flake update

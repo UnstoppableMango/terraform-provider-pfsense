@@ -6,3 +6,4 @@ nix/tools/result*
 .direnv/
 /go.mod
 /go.sum
+go.work*

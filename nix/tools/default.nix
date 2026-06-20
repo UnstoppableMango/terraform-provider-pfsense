@@ -46,6 +46,7 @@ buildGoApplication {
     fileset = fs.unions [
       ./cmd/gen-config
       ./cmd/patch-openapi
+      ./cmd/patch-provider
       ./internal
       ./go.mod
       ./go.sum
