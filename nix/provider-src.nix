@@ -1,4 +1,5 @@
 {
+  applyPatches,
   genProvider,
   go,
   gomod2nix,
@@ -81,20 +82,26 @@ let
     '';
   };
 
-  patched = stdenv.mkDerivation {
-    name = "patched-src";
-    src = null;
-    dontUnpack = true;
+  # patched = stdenv.mkDerivation {
+  #   name = "patched-src";
+  #   src = null;
+  #   dontUnpack = true;
 
-    prePatch = ''
-      cp -rL ${goSrc}/* .
+  #   prePatch = ''
+  #     cp -rL ${goSrc}/* .
+  #   '';
+
+  #   patches = [ ./go.mod.patch ];
+
+  #   buildPhase = ''
+  #     cp -r . $out
+  #   '';
+  # };
+  patched = applyPatches {
+    src = runCommand "goSrc-deref" { } ''
+      cp -rL ${goSrc} $out
     '';
-
     patches = [ ./go.mod.patch ];
-
-    buildPhase = ''
-      cp -r . $out
-    '';
   };
 
   gomod2nixToml = writeShellApplication {

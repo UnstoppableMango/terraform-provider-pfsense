@@ -21,7 +21,7 @@ let
 
   src = pkgs.callPackage ./provider-src.nix {
     inherit genProvider gomod2nix scaffold tools;
-    input = spec;
+    schemaFile = spec;
   };
 in
 buildGoApplication {
@@ -29,10 +29,6 @@ buildGoApplication {
   version = "0.1.0";
   modules = ./gomod2nix.toml;
   inherit src;
-
-  preBuild = ''
-    ls -l
-  '';
 
   subPackages = [ "cmd/terraform-provider-pfsense" ];
 
