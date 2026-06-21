@@ -20,7 +20,12 @@ let
   };
 
   src = pkgs.callPackage ./provider-src.nix {
-    inherit genProvider gomod2nix scaffold tools;
+    inherit
+      genProvider
+      gomod2nix
+      scaffold
+      tools
+      ;
     schemaFile = spec;
   };
 in
