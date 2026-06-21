@@ -1,5 +1,9 @@
 bin/
-/result
+/result*
+nix/tools/result*
 .claude/
 .envrc
 .direnv/
+/go.mod
+/go.sum
+go.work*

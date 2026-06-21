@@ -1,4 +1,4 @@
-package pkg
+package main
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/pb33f/libopenapi"
 	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 	"github.com/unmango/go/world"
-	"github.com/unstoppablemango/terraform-provider-pfsense/internal/config"
+	"github.com/unstoppablemango/terraform-provider-pfsense/nix/tools/internal/config"
 	"gopkg.in/yaml.v3"
 )
 

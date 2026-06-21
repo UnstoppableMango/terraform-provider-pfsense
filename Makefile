@@ -1,12 +1,13 @@
 _ != mkdir -p bin
 
 GOMOD2NIX ?= gomod2nix
-TF_GEN ?= go tool tfplugingen-openapi
+NIX_SRC := $(shell find . -name '*.nix')
 
-GO_SRC := $(shell find . -type f -name '*.go')
+build: nix/gomod2nix.toml
+	nix build .#
 
-build: tidy internal/config/config.go
-	nix build
+tools:
+	nix build .#tools
 
 update:
 	nix flake update
@@ -14,15 +15,15 @@ update:
 check:
 	nix flake check
 
-tidy: go.sum nix/gomod2nix.toml
+tidy:
+	$(MAKE) -C nix/tools tidy
 
-go.sum: go.mod ${GO_SRC}
-	go mod tidy
+nix/go.mod.patch: ${NIX_SRC}
+	nix run .#bin.src.goModPatch -- $@
 
-.SECONDARY: internal/config/config.go
-internal/config/config.go: nix/upstream.nix
-	@mkdir -p $(@D) && rm -f $@
-	cp $$(nix build .#upstream --print-out-paths) $@
+nix/gomod2nix.toml: nix/go.mod.patch
+	nix run .#bin.src.gomod2nixToml -- ${@D}
 
-nix/gomod2nix.toml: go.sum
-	$(GOMOD2NIX) generate --outdir ./nix
+go.mod go.sum &: nix/go.mod.patch
+	nix build .#bin.src
+	install -m 444 result/go.{mod,sum} ${CURDIR}/

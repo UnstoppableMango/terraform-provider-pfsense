@@ -46,37 +46,18 @@
         { pkgs, inputs', ... }:
         let
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
-          inherit (inputs.globset.lib) globs;
-
           a2b = inputs'.a2b.legacyPackages.lib;
 
-          tools = pkgs.callPackage ./nix/tools.nix { inherit buildGoApplication globs; };
-          upstream = pkgs.callPackage ./nix/upstream.nix { inherit tools; };
-          openapi = pkgs.callPackage ./nix/openapi.nix { inherit tools; };
-          config = pkgs.callPackage ./nix/config.nix { inherit tools openapi; };
-
-          spec = pkgs.callPackage ./nix/provider-spec.nix {
-            inherit (a2b.terraform) genProviderSpec;
-            inherit config openapi;
-          };
-
-          provider = pkgs.callPackage ./nix/provider.nix {
-            inherit (a2b.terraform) genProvider;
-            input = spec;
+          bin = pkgs.callPackage ./nix {
+            inherit buildGoApplication a2b;
+            inherit gomod2nix;
           };
         in
         {
           packages = {
-            inherit
-              tools
-              openapi
-              upstream
-              config
-              spec
-              provider
-              ;
-
-            default = provider;
+            inherit (bin) tools src;
+            inherit bin;
+            default = bin;
           };
 
           devShells.default = pkgs.mkShellNoCC {
