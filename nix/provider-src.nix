@@ -61,14 +61,16 @@ let
         mkdir -p $out && cd $out
         ${go}/bin/go mod init ${goPackage}
       '')
-      (scaffold {
-        command = "provider";
-        name = "pfSense";
-        scaffoldName = "pfsense";
+      # This scaffolds the same thing we're generating with patchedProvider
+      # TODO: Retarget patches to the scaffolding output
+      # (scaffold {
+      #   command = "provider";
+      #   name = "pfSense";
+      #   scaffoldName = "pfsense";
 
-        # a2b scaffold does not pre-create $out; preRun hook does it
-        env.preRun = "mkdir -p $out";
-      })
+      #   # a2b scaffold does not pre-create $out; preRun hook does it
+      #   env.preRun = "mkdir -p $out";
+      # })
     ]
     ++ map toScaffold schema.resources;
   };
@@ -82,23 +84,8 @@ let
     '';
   };
 
-  # patched = stdenv.mkDerivation {
-  #   name = "patched-src";
-  #   src = null;
-  #   dontUnpack = true;
-
-  #   prePatch = ''
-  #     cp -rL ${goSrc}/* .
-  #   '';
-
-  #   patches = [ ./go.mod.patch ];
-
-  #   buildPhase = ''
-  #     cp -r . $out
-  #   '';
-  # };
   patched = applyPatches {
-    src = runCommand "goSrc-deref" { } ''
+    src = runCommand "deref-symlinks" { } ''
       cp -rL ${goSrc} $out
     '';
     patches = [ ./go.mod.patch ];
