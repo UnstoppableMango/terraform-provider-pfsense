@@ -28,9 +28,6 @@ let
       inherit name package;
       scaffoldName = lib.strings.toSentenceCase resource.name;
 
-      # a2b scaffold does not pre-create $out; preRun hook does it
-      env.preRun = "mkdir -p $out";
-
       env.postRun = ''
         mkdir -p $out/${package}
         mv $out/${name}.go $out/${package}/
