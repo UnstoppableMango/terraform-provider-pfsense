@@ -26,13 +26,22 @@
       inputs.flake-utils.inputs.systems.follows = "systems";
     };
 
-    a2b = {
-      url = "github:UnstoppableMango/a2b";
+    mangopkgs = {
+      url = "github:unmango/pkgs";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
       inputs.flake-parts.follows = "flake-parts";
       inputs.gomod2nix.follows = "gomod2nix";
       inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
+    a2b = {
+      url = "github:UnstoppableMango/a2b";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.mangopkgs.follows = "mangopkgs";
     };
   };
 
