@@ -21,7 +21,7 @@ check:
 tidy:
 	$(MAKE) -C nix/tools tidy
 
-nix/go.mod.patch: ${NIX_SRC}
+nix/go.mod.patch: ${NIX_SRC} flake.lock
 	nix run .#bin.src.goModPatch -- $@
 
 nix/gomod2nix.toml: nix/go.mod.patch
