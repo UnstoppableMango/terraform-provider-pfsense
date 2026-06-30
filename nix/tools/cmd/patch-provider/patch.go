@@ -51,12 +51,10 @@ func Patch(providerFile, schemaFile string) error {
 		if !isPfsenseProviderMethod(fn) {
 			continue
 		}
-		marker, found := findMarker(fset, f.Comments, fn.Body)
-		if !found {
+		body, imports := generateBody(fn.Name.Name, s)
+		if body == "" {
 			continue
 		}
-
-		body, imports := generateBody(marker, s)
 		for path, alias := range imports {
 			neededImports[path] = alias
 		}
@@ -74,6 +72,7 @@ func Patch(providerFile, schemaFile string) error {
 	for _, r := range replacements {
 		out = append(out[:r.start], append([]byte(r.body), out[r.end:]...)...)
 	}
+	out = append(out, []byte("\nvar Version = \"dev\"\n")...)
 
 	fset2 := token.NewFileSet()
 	f2, err := parser.ParseFile(fset2, providerFile, out, parser.ParseComments)
@@ -112,34 +111,24 @@ func isPfsenseProviderMethod(fn *ast.FuncDecl) bool {
 	return ok && ident.Name == "pfsenseProvider"
 }
 
-func findMarker(_ *token.FileSet, comments []*ast.CommentGroup, body *ast.BlockStmt) (string, bool) {
-	for _, cg := range comments {
-		if cg.Pos() <= body.Lbrace || cg.Pos() >= body.Rbrace {
-			continue
-		}
-		for _, c := range cg.List {
-			text := strings.TrimSpace(strings.TrimPrefix(c.Text, "//"))
-			switch text {
-			case MarkerResources, MarkerDataSources, MarkerSchema, MarkerConfigure:
-				return text, true
-			}
-		}
-	}
-	return "", false
-}
-
-func generateBody(marker string, s *spec.Specification) (string, map[string]string) {
-	switch marker {
-	case MarkerResources:
+func generateBody(method string, s *spec.Specification) (string, map[string]string) {
+	switch method {
+	case "Resources":
 		return generateResources(s)
-	case MarkerDataSources:
+	case "DataSources":
 		return generateDataSources(s)
-	case MarkerSchema:
+	case "Schema":
 		return generateSchema(s)
-	case MarkerConfigure:
+	case "Configure":
 		return generateConfigure(), nil
+	case "Metadata":
+		return generateMetadata(), nil
 	}
 	return "", nil
+}
+
+func generateMetadata() string {
+	return "\n\tresp.TypeName = \"pfsense\"\n\tresp.Version = Version\n"
 }
 
 func generateResources(s *spec.Specification) (string, map[string]string) {

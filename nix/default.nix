@@ -42,5 +42,6 @@ buildGoApplication {
   ldflags = [
     "-w"
     "-s"
+    "-X github.com/unstoppablemango/terraform-provider-pfsense/provider_pfsense.Version=0.1.0"
   ];
 }
