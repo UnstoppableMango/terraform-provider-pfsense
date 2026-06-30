@@ -14,6 +14,7 @@ tools:
 
 update:
 	nix flake update
+	$(MAKE) nix/go.mod.patch nix/gomod2nix.toml
 
 check:
 	nix flake check
