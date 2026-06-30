@@ -51,12 +51,10 @@ func Patch(providerFile, schemaFile string) error {
 		if !isPfsenseProviderMethod(fn) {
 			continue
 		}
-		kind, ok := methodKind(fn)
-		if !ok {
+		body, imports := generateBody(fn.Name.Name, s)
+		if body == "" {
 			continue
 		}
-
-		body, imports := generateBody(kind, s)
 		for path, alias := range imports {
 			neededImports[path] = alias
 		}
@@ -113,33 +111,17 @@ func isPfsenseProviderMethod(fn *ast.FuncDecl) bool {
 	return ok && ident.Name == "pfsenseProvider"
 }
 
-func methodKind(fn *ast.FuncDecl) (string, bool) {
-	switch fn.Name.Name {
+func generateBody(method string, s *spec.Specification) (string, map[string]string) {
+	switch method {
 	case "Resources":
-		return MarkerResources, true
-	case "DataSources":
-		return MarkerDataSources, true
-	case "Schema":
-		return MarkerSchema, true
-	case "Configure":
-		return MarkerConfigure, true
-	case "Metadata":
-		return "metadata", true
-	}
-	return "", false
-}
-
-func generateBody(marker string, s *spec.Specification) (string, map[string]string) {
-	switch marker {
-	case MarkerResources:
 		return generateResources(s)
-	case MarkerDataSources:
+	case "DataSources":
 		return generateDataSources(s)
-	case MarkerSchema:
+	case "Schema":
 		return generateSchema(s)
-	case MarkerConfigure:
+	case "Configure":
 		return generateConfigure(), nil
-	case "metadata":
+	case "Metadata":
 		return generateMetadata(), nil
 	}
 	return "", nil
