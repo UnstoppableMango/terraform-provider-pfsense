@@ -34,10 +34,17 @@ let
       '';
     };
 
+  scaffoldedProvider = scaffold {
+    command = "provider";
+    name = "pfSense";
+    package = "provider_pfsense";
+    scaffoldName = "pfsense";
+  };
+
   patchedProvider = runCommand "provider_pfsense" { } ''
     mkdir -p $out/provider_pfsense
     ${tools}/bin/patch-provider \
-      ${../provider_pfsense/provider.go} \
+      ${scaffoldedProvider}/provider.go \
       ${schemaFile} \
       > $out/provider_pfsense/provider.go
   '';
@@ -58,16 +65,6 @@ let
         mkdir -p $out && cd $out
         ${go}/bin/go mod init ${goPackage}
       '')
-      # This scaffolds the same thing we're generating with patchedProvider
-      # TODO: Retarget patches to the scaffolding output
-      # (scaffold {
-      #   command = "provider";
-      #   name = "pfSense";
-      #   scaffoldName = "pfsense";
-
-      #   # a2b scaffold does not pre-create $out; preRun hook does it
-      #   env.preRun = "mkdir -p $out";
-      # })
     ]
     ++ map toScaffold schema.resources;
   };

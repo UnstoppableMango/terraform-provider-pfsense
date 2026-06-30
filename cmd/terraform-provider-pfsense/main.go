@@ -9,8 +9,6 @@ import (
 	"github.com/unstoppablemango/terraform-provider-pfsense/provider_pfsense"
 )
 
-var version = "dev"
-
 func main() {
 	var debug bool
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
@@ -21,7 +19,7 @@ func main() {
 		Debug:   debug,
 	}
 
-	err := providerserver.Serve(context.Background(), provider_pfsense.New(version), opts)
+	err := providerserver.Serve(context.Background(), provider_pfsense.New(), opts)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

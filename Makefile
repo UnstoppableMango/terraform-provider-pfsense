@@ -6,6 +6,9 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: nix/gomod2nix.toml
 	nix build .#
 
+src:
+	nix build .#bin.src
+
 tools:
 	nix build .#tools
 

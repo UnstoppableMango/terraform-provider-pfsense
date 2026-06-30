@@ -51,12 +51,12 @@ func Patch(providerFile, schemaFile string) error {
 		if !isPfsenseProviderMethod(fn) {
 			continue
 		}
-		marker, found := findMarker(fset, f.Comments, fn.Body)
-		if !found {
+		kind, ok := methodKind(fn)
+		if !ok {
 			continue
 		}
 
-		body, imports := generateBody(marker, s)
+		body, imports := generateBody(kind, s)
 		for path, alias := range imports {
 			neededImports[path] = alias
 		}
@@ -74,6 +74,7 @@ func Patch(providerFile, schemaFile string) error {
 	for _, r := range replacements {
 		out = append(out[:r.start], append([]byte(r.body), out[r.end:]...)...)
 	}
+	out = append(out, []byte("\nvar Version = \"dev\"\n")...)
 
 	fset2 := token.NewFileSet()
 	f2, err := parser.ParseFile(fset2, providerFile, out, parser.ParseComments)
@@ -112,18 +113,18 @@ func isPfsenseProviderMethod(fn *ast.FuncDecl) bool {
 	return ok && ident.Name == "pfsenseProvider"
 }
 
-func findMarker(_ *token.FileSet, comments []*ast.CommentGroup, body *ast.BlockStmt) (string, bool) {
-	for _, cg := range comments {
-		if cg.Pos() <= body.Lbrace || cg.Pos() >= body.Rbrace {
-			continue
-		}
-		for _, c := range cg.List {
-			text := strings.TrimSpace(strings.TrimPrefix(c.Text, "//"))
-			switch text {
-			case MarkerResources, MarkerDataSources, MarkerSchema, MarkerConfigure:
-				return text, true
-			}
-		}
+func methodKind(fn *ast.FuncDecl) (string, bool) {
+	switch fn.Name.Name {
+	case "Resources":
+		return MarkerResources, true
+	case "DataSources":
+		return MarkerDataSources, true
+	case "Schema":
+		return MarkerSchema, true
+	case "Configure":
+		return MarkerConfigure, true
+	case "Metadata":
+		return "metadata", true
 	}
 	return "", false
 }
@@ -138,8 +139,14 @@ func generateBody(marker string, s *spec.Specification) (string, map[string]stri
 		return generateSchema(s)
 	case MarkerConfigure:
 		return generateConfigure(), nil
+	case "metadata":
+		return generateMetadata(), nil
 	}
 	return "", nil
+}
+
+func generateMetadata() string {
+	return "\n\tresp.TypeName = \"pfsense\"\n\tresp.Version = Version\n"
 }
 
 func generateResources(s *spec.Specification) (string, map[string]string) {
