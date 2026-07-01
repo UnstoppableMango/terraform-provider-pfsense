@@ -3,8 +3,10 @@ _ != mkdir -p bin
 GOMOD2NIX ?= gomod2nix
 NIX_SRC := $(shell find . -name '*.nix')
 
-build: nix/gomod2nix.toml
+build: generate
 	nix build .#
+
+generate gen: go.mod nix/gomod2nix.toml
 
 src:
 	nix build .#bin.src
@@ -15,7 +17,7 @@ tools:
 update:
 	nix flake update
 
-check: nix/go.mod.patch nix/gomod2nix.toml
+check: generate
 	nix flake check
 
 tidy:
