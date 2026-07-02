@@ -9,12 +9,9 @@ import (
 	"github.com/unstoppablemango/terraform-provider-pfsense/test/mock"
 )
 
-var mockServerURL string
-
 func TestMain(m *testing.M) {
 	srv := mock.NewServer()
 	defer srv.Close()
-	mockServerURL = srv.URL
 
 	binaryPath := os.Getenv("PFSENSE_PROVIDER_BINARY")
 	if binaryPath == "" {

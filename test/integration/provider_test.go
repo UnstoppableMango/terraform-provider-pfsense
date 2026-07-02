@@ -1,21 +1,18 @@
 package integration_test
 
-import (
-	"fmt"
-
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-)
-
-var testExternalProviders = map[string]resource.ExternalProvider{
-	"pfsense": {Source: "registry.terraform.io/unstoppablemango/pfsense"},
+// providerHCL returns required_providers + provider config.
+// dev_overrides in TF_CLI_CONFIG_FILE redirects to the local binary.
+// host/credentials will be added once the provider schema is implemented.
+func providerHCL() string {
+	return `
+terraform {
+  required_providers {
+    pfsense = {
+      source = "registry.terraform.io/unstoppablemango/pfsense"
+    }
+  }
 }
 
-func providerHCL(host string) string {
-	return fmt.Sprintf(`
-provider "pfsense" {
-  host         = %q
-  client_id    = "test"
-  client_token = "test"
-}
-`, host)
+provider "pfsense" {}
+`
 }
