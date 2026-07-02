@@ -6,7 +6,7 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: generate
 	nix build .#
 
-generate gen: go.mod go.sum nix/gomod2nix.toml
+generate gen: nix/gomod2nix.toml
 
 src:
 	nix build .#bin.src
@@ -29,6 +29,3 @@ nix/go.mod.patch: ${NIX_SRC} flake.lock
 nix/gomod2nix.toml: nix/go.mod.patch
 	nix run .#bin.src.gomod2nixToml -- ${@D}
 
-go.mod go.sum &: nix/go.mod.patch
-	nix build .#bin.src
-	install -m 444 result/go.{mod,sum} ${CURDIR}/

@@ -49,13 +49,19 @@ let
       > $out/provider_pfsense/provider.go
   '';
 
+  generatedCmd = runCommand "cmd" { } ''
+    mkdir -p $out/cmd/terraform-provider-pfsense
+    ${tools}/bin/gen-main \
+      "registry.terraform.io/unstoppablemango/pfsense" \
+      "${goPackage}" \
+      "provider_pfsense" \
+      > $out/cmd/terraform-provider-pfsense/main.go
+  '';
+
   goSrc = symlinkJoin {
     name = "go-src";
     paths = [
-      (fs.toSource {
-        root = ../.;
-        fileset = ../cmd;
-      })
+      generatedCmd
       patchedProvider
       (genProvider {
         name = "terraform-provider-pfsense";
