@@ -6,7 +6,7 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: generate
 	nix build .#
 
-generate gen: nix/gomod2nix.toml
+generate gen: nix/go.mod.patch nix/gomod2nix.toml.patch
 
 src:
 	nix build .#bin.src
@@ -25,6 +25,9 @@ tidy:
 
 nix/go.mod.patch: ${NIX_SRC} flake.lock
 	nix run .#bin.src.goModPatch -- $@
+
+nix/gomod2nix.toml.patch: nix/go.mod.patch
+	nix run .#bin.src.gomod2nixTomlPatch -- $@
 
 nix/gomod2nix.toml: nix/go.mod.patch
 	nix run .#bin.src.gomod2nixToml -- ${@D}

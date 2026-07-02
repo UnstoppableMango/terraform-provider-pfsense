@@ -1,5 +1,6 @@
 {
   applyPatches,
+  diffutils,
   genProvider,
   go,
   gomod2nix,
@@ -7,13 +8,11 @@
   lib,
   runCommand,
   scaffold,
-  stdenv,
   symlinkJoin,
   tools,
   writeShellApplication,
 }:
 let
-  fs = lib.fileset;
   goPackage = "github.com/unstoppablemango/terraform-provider-pfsense";
   schema = builtins.fromJSON (builtins.readFile schemaFile);
 
@@ -88,20 +87,30 @@ let
     src = runCommand "deref-symlinks" { } ''
       cp -rL ${goSrc} $out
     '';
-    patches = [ ./go.mod.patch ];
+    patches = [
+      ./go.mod.patch
+      ./gomod2nix.toml.patch
+    ];
   };
 
-  gomod2nixToml = writeShellApplication {
-    name = "gomod2nix.toml.sh";
-    runtimeInputs = [ gomod2nix ];
+  gomod2nixTomlPatch = writeShellApplication {
+    name = "gomod2nix.toml.patch.sh";
+    runtimeInputs = [
+      gomod2nix
+      diffutils
+    ];
 
     text = ''
-      gomod2nix generate --dir "${patched}" --outdir "$1"
+      tmpdir=$(mktemp -d)
+      gomod2nix generate --dir "${patched}" --outdir "$tmpdir"
+      diff -u /dev/null "$tmpdir/gomod2nix.toml" \
+        --label /dev/null \
+        --label b/gomod2nix.toml > "$1" || true
     '';
   };
 in
 patched.overrideAttrs (oldAttrs: {
   passthru = {
-    inherit goModPatch gomod2nixToml;
+    inherit goModPatch gomod2nixTomlPatch;
   };
 })
