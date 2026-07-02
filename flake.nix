@@ -67,6 +67,7 @@
             inherit (bin) tools src;
             inherit bin;
             default = bin;
+            test = bin.tests;
           };
 
           devShells.default = pkgs.mkShellNoCC {
@@ -78,6 +79,7 @@
               ginkgo
               gnumake
               nixfmt
+              opentofu
             ];
 
             GO = "${pkgs.go}/bin/go";
