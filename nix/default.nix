@@ -47,7 +47,6 @@ let
   };
 
   tests = pkgs.callPackage ./tests.nix {
-    inherit buildGoApplication;
     providerBin = bin;
   };
 in

@@ -31,4 +31,3 @@ nix/gomod2nix.toml.patch: nix/go.mod.patch
 
 nix/gomod2nix.toml: nix/go.mod.patch
 	nix run .#bin.src.gomod2nixToml -- ${@D}
-
