@@ -32,7 +32,7 @@ in
 buildGoApplication {
   pname = "terraform-provider-pfsense";
   version = "0.1.0";
-  modules = ./gomod2nix.toml;
+  modules = "${src}/gomod2nix.toml";
   inherit src;
 
   subPackages = [ "cmd/terraform-provider-pfsense" ];
