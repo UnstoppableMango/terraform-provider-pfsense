@@ -193,8 +193,8 @@ func generateSchema(s *spec.Specification) (string, map[string]string) {
 func generateConfigure() (string, map[string]string) {
 	imports := map[string]string{
 		"net/http": "",
-		"github.com/hashicorp/terraform-plugin-framework/path":                    "",
-		"github.com/hashicorp/terraform-plugin-framework/types":                   "",
+		"github.com/hashicorp/terraform-plugin-framework/path":                   "",
+		"github.com/hashicorp/terraform-plugin-framework/types":                  "",
 		"github.com/unstoppablemango/terraform-provider-pfsense/internal/client": "",
 	}
 	body := `
