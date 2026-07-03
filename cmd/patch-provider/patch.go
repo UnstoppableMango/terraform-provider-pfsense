@@ -120,7 +120,7 @@ func generateBody(method string, s *spec.Specification) (string, map[string]stri
 	case "Schema":
 		return generateSchema(s)
 	case "Configure":
-		return generateConfigure(), nil
+		return generateConfigure()
 	case "Metadata":
 		return generateMetadata(), nil
 	}
@@ -170,27 +170,51 @@ func generateSchema(s *spec.Specification) (string, map[string]string) {
 		"github.com/hashicorp/terraform-plugin-framework/provider/schema": "",
 	}
 
-	if s.Provider == nil || s.Provider.Schema == nil || len(s.Provider.Schema.Attributes) == 0 {
-		return "\n\tresp.Schema = schema.Schema{}\n", imports
-	}
-
 	var b strings.Builder
 	b.WriteString("\n\tresp.Schema = schema.Schema{\n")
 	b.WriteString("\t\tAttributes: map[string]schema.Attribute{\n")
-	for _, attr := range s.Provider.Schema.Attributes {
-		lit := attrLiteral(attr)
-		if lit == "" {
-			continue
+	b.WriteString("\t\t\t\"host\":     schema.StringAttribute{Required: true},\n")
+	b.WriteString("\t\t\t\"username\": schema.StringAttribute{Required: true},\n")
+	b.WriteString("\t\t\t\"password\": schema.StringAttribute{Required: true, Sensitive: true},\n")
+	if s.Provider != nil && s.Provider.Schema != nil {
+		for _, attr := range s.Provider.Schema.Attributes {
+			lit := attrLiteral(attr)
+			if lit == "" {
+				continue
+			}
+			fmt.Fprintf(&b, "\t\t\t%q: %s,\n", attr.Name, lit)
 		}
-		fmt.Fprintf(&b, "\t\t\t%q: %s,\n", attr.Name, lit)
 	}
 	b.WriteString("\t\t},\n")
 	b.WriteString("\t}\n")
 	return b.String(), imports
 }
 
-func generateConfigure() string {
-	return "\n\t// TODO: initialize API client\n"
+func generateConfigure() (string, map[string]string) {
+	imports := map[string]string{
+		"net/http": "",
+		"github.com/hashicorp/terraform-plugin-framework/path":                    "",
+		"github.com/hashicorp/terraform-plugin-framework/types":                   "",
+		"github.com/unstoppablemango/terraform-provider-pfsense/internal/client": "",
+	}
+	body := `
+	var host, username, password types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("host"), &host)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("username"), &username)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &password)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	cfg := &client.Config{
+		Host:     host.ValueString(),
+		Username: username.ValueString(),
+		Password: password.ValueString(),
+		HTTP:     &http.Client{},
+	}
+	resp.DataSourceData = cfg
+	resp.ResourceData = cfg
+`
+	return body, imports
 }
 
 func attrLiteral(attr providerspec.Attribute) string {

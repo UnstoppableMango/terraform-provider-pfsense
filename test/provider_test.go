@@ -1,10 +1,15 @@
 package integration_test
 
+import (
+	"fmt"
+	"os"
+)
+
 // providerHCL returns required_providers + provider config.
 // dev_overrides in TF_CLI_CONFIG_FILE redirects to the local binary.
-// host/credentials will be added once the provider schema is implemented.
+// PFSENSE_MOCK_URL is set by TestMain to the mock server address.
 func providerHCL() string {
-	return `
+	return fmt.Sprintf(`
 terraform {
   required_providers {
     pfsense = {
@@ -13,6 +18,10 @@ terraform {
   }
 }
 
-provider "pfsense" {}
-`
+provider "pfsense" {
+  host     = %q
+  username = "admin"
+  password = "pfsense"
+}
+`, os.Getenv("PFSENSE_MOCK_URL"))
 }
