@@ -63,6 +63,14 @@
           };
         in
         {
+          apps = {
+            tests = {
+              program = pkgs.callPackage ./nix/tests.nix {
+                providerBin = bin;
+              };
+            };
+          };
+
           packages = {
             inherit (bin) tools src;
             inherit bin;
@@ -78,6 +86,7 @@
               ginkgo
               gnumake
               nixfmt
+              opentofu
             ];
 
             GO = "${pkgs.go}/bin/go";
