@@ -1,6 +1,6 @@
 module github.com/unstoppablemango/terraform-provider-pfsense/test
 
-go 1.23.0
+go 1.26.4
 
 require github.com/hashicorp/terraform-plugin-testing v1.13.2
 
