@@ -17,9 +17,15 @@ func TestMain(m *testing.M) {
 	if binaryPath == "" {
 		binaryPath = "result/bin/terraform-provider-pfsense"
 	}
-	rcPath := writeTerraformRC(filepath.Dir(binaryPath))
+	absBinaryPath, err := filepath.Abs(binaryPath)
+	if err != nil {
+		panic(err)
+	}
+	rcPath := writeTerraformRC(filepath.Dir(absBinaryPath))
 	defer os.Remove(rcPath)
-	os.Setenv("TF_CLI_CONFIG_FILE", rcPath)
+	if err := os.Setenv("TF_CLI_CONFIG_FILE", rcPath); err != nil {
+		panic(err)
+	}
 
 	os.Exit(m.Run())
 }
@@ -40,6 +46,8 @@ provider_installation {
 	if _, err := f.WriteString(content); err != nil {
 		panic(err)
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		panic(err)
+	}
 	return f.Name()
 }

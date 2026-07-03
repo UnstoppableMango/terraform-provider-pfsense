@@ -17,6 +17,6 @@ pkgs.writeShellApplication {
   text = ''
     export PFSENSE_PROVIDER_BINARY="${providerBin}/bin/terraform-provider-pfsense"
     cd "$(git rev-parse --show-toplevel)/test"
-    TF_ACC=1 go test ./... "$@"
+    TF_ACC=1 go test "$@" ./...
   '';
 }
