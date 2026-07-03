@@ -6,6 +6,10 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: generate
 	nix build .#
 
+.PHONY: test
+test:
+	nix run .#tests
+
 generate gen: nix/go.mod.patch nix/gomod2nix.toml.patch
 
 src:
