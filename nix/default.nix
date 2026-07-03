@@ -28,29 +28,20 @@ let
       ;
     schemaFile = spec;
   };
-
-  bin = buildGoApplication {
-    pname = "terraform-provider-pfsense";
-    version = "0.1.0";
-    modules = ./gomod2nix.toml;
-    inherit src;
-
-    subPackages = [ "cmd/terraform-provider-pfsense" ];
-
-    passthru = { inherit spec src tools; };
-
-    ldflags = [
-      "-w"
-      "-s"
-      "-X github.com/unstoppablemango/terraform-provider-pfsense/provider_pfsense.Version=0.1.0"
-    ];
-  };
-
-  tests = pkgs.callPackage ./tests.nix {
-    providerBin = bin;
-  };
 in
-bin // {
-  passthru = bin.passthru // { inherit tests; };
-  inherit tests;
+buildGoApplication {
+  pname = "terraform-provider-pfsense";
+  version = "0.1.0";
+  modules = "${src}/gomod2nix.toml";
+  inherit src;
+
+  subPackages = [ "cmd/terraform-provider-pfsense" ];
+
+  passthru = { inherit spec src tools; };
+
+  ldflags = [
+    "-w"
+    "-s"
+    "-X github.com/unstoppablemango/terraform-provider-pfsense/provider_pfsense.Version=0.1.0"
+  ];
 }

@@ -63,11 +63,18 @@
           };
         in
         {
+          apps = {
+            tests = {
+              program = pkgs.callPackage ./nix/tests.nix {
+                providerBin = bin;
+              };
+            };
+          };
+
           packages = {
             inherit (bin) tools src;
             inherit bin;
             default = bin;
-            test = bin.tests;
           };
 
           devShells.default = pkgs.mkShellNoCC {
