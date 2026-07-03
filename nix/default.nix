@@ -7,7 +7,7 @@
 let
   inherit (a2b.terraform) genProvider genProviderSpec scaffold;
 
-  tools = pkgs.callPackage ./tools {
+  tools = pkgs.callPackage ./tools.nix {
     inherit buildGoApplication;
   };
 

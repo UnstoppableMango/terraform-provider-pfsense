@@ -6,10 +6,16 @@ NIX_SRC := $(shell find . -name '*.nix')
 build: generate
 	nix build .#
 
+.PHONY: test
+test:
+	nix run .#tests
+
 generate gen: nix/go.mod.patch nix/gomod2nix.toml.patch
 
 src:
 	nix build .#bin.src
+
+tidy: go.sum nix/gomod2nix.toml
 
 tools:
 	nix build .#tools
@@ -20,8 +26,8 @@ update:
 check: generate
 	nix flake check
 
-tidy:
-	$(MAKE) -C nix/tools tidy
+go.sum: go.mod
+	go mod tidy
 
 nix/go.mod.patch: ${NIX_SRC} flake.lock
 	nix run .#bin.src.goModPatch -- $@
@@ -29,5 +35,5 @@ nix/go.mod.patch: ${NIX_SRC} flake.lock
 nix/gomod2nix.toml.patch: nix/go.mod.patch
 	nix run .#bin.src.gomod2nixTomlPatch -- $@
 
-nix/gomod2nix.toml: nix/go.mod.patch
-	nix run .#bin.src.gomod2nixToml -- ${@D}
+nix/gomod2nix.toml: go.sum
+	$(GOMOD2NIX) generate --outdir ./nix

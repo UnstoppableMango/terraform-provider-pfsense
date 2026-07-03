@@ -22,11 +22,11 @@ let
     modules = ./gomod2nix.toml;
 
     src = fs.toSource {
-      root = ./.;
+      root = ../.;
       fileset = fs.unions [
-        ./cmd/slurp-source
-        ./go.mod
-        ./go.sum
+        ../cmd/slurp-source
+        ../go.mod
+        ../go.sum
       ];
     };
   };
@@ -42,15 +42,15 @@ buildGoApplication {
   passthru = { inherit configGo; };
 
   src = fs.toSource {
-    root = ./.;
+    root = ../.;
     fileset = fs.unions [
-      ./cmd/gen-config
-      ./cmd/gen-main
-      ./cmd/patch-openapi
-      ./cmd/patch-provider
-      ./internal
-      ./go.mod
-      ./go.sum
+      ../cmd/gen-config
+      ../cmd/gen-main
+      ../cmd/patch-openapi
+      ../cmd/patch-provider
+      ../internal
+      ../go.mod
+      ../go.sum
     ];
   };
 }

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/unstoppablemango/terraform-provider-pfsense/test/mock"
+	"github.com/unstoppablemango/terraform-provider-pfsense/mock"
 )
 
 func TestMain(m *testing.M) {
