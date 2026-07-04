@@ -23,6 +23,60 @@ type replacement struct {
 	body       string
 }
 
+const clientGo = `package client
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+// Config holds connection details for the pfSense REST API.
+type Config struct {
+	Host     string
+	Username string
+	Password string
+	HTTP     *http.Client
+}
+
+type authResponse struct {
+	Data struct {
+		Token string ` + "`" + `json:"token"` + "`" + `
+	} ` + "`" + `json:"data"` + "`" + `
+}
+
+// GetJWT exchanges username/password for a JWT from the pfSense auth endpoint.
+func (c *Config) GetJWT(ctx context.Context) (string, error) {
+	body, err := json.Marshal(map[string]string{
+		"username": c.Username,
+		"password": c.Password,
+	})
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.Host+"/api/v2/auth/jwt", bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("auth failed: %s", resp.Status)
+	}
+	var ar authResponse
+	if err := json.NewDecoder(resp.Body).Decode(&ar); err != nil {
+		return "", err
+	}
+	return ar.Data.Token, nil
+}
+`
+
 func Patch(providerFile, schemaFile string) error {
 	s, err := ParseSchema(schemaFile)
 	if err != nil {
@@ -95,8 +149,14 @@ func Patch(providerFile, schemaFile string) error {
 	if err != nil {
 		return fmt.Errorf("format source: %w", err)
 	}
-	_, err = os.Stdout.Write(formatted)
-	return err
+	if _, err = os.Stdout.Write(formatted); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll("internal/client", 0o755); err != nil {
+		return fmt.Errorf("mkdir internal/client: %w", err)
+	}
+	return os.WriteFile("internal/client/client.go", []byte(clientGo), 0o644)
 }
 
 func isPfsenseProviderMethod(fn *ast.FuncDecl) bool {

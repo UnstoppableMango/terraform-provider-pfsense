@@ -41,7 +41,9 @@ let
   };
 
   patchedProvider = runCommand "provider_pfsense" { } ''
-    mkdir -p $out/provider_pfsense
+    # TODO: Factor out the patching of the provider
+    mkdir -p $out/provider_pfsense $out/internal/client
+    cd $out
     ${tools}/bin/patch-provider \
       ${scaffoldedProvider}/provider.go \
       ${schemaFile} \
