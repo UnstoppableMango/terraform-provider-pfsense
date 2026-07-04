@@ -249,10 +249,6 @@ schema = 3
     version = 'v0.16.6'
     hash = 'sha256-qBjI1pYTsSms/0be5i+3Ufj0gFKPWXzJ2eVR7V0txAs='
 
-  [mod.'github.com/unstoppablemango/terraform-provider-pfsense/nix/tools']
-    version = 'v0.0.0-20260703044548-86b0749c6b97'
-    hash = 'sha256-x0ixhmpea9fhmDPTpqYLLg2hCgyN7d47qtNil+uCe/Q='
-
   [mod.'github.com/vmihailenco/msgpack']
     version = 'v4.0.4+incompatible'
     hash = 'sha256-gA3l8Ma1XVja+C8XJzgRTQVb1htbsh4yrbnOu6cuw9U='

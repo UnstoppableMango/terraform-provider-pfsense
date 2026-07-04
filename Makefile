@@ -1,6 +1,7 @@
 _ != mkdir -p bin
 
 GOMOD2NIX ?= gomod2nix
+GO_SRC := $(shell find . -name '*.go')
 NIX_SRC := $(shell find . -name '*.nix')
 
 build: generate
@@ -26,7 +27,7 @@ update:
 check: generate
 	nix flake check
 
-go.sum: go.mod
+go.sum: go.mod ${GO_SRC}
 	go mod tidy
 
 nix/go.mod.patch: ${NIX_SRC} flake.lock

@@ -12,6 +12,9 @@ import (
 func TestMain(m *testing.M) {
 	srv := mock.NewServer()
 	defer srv.Close()
+	if err := os.Setenv("PFSENSE_MOCK_URL", srv.URL); err != nil {
+		panic(err)
+	}
 
 	binaryPath := os.Getenv("PFSENSE_PROVIDER_BINARY")
 	if binaryPath == "" {

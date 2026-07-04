@@ -23,6 +23,70 @@ type replacement struct {
 	body       string
 }
 
+const clientGo = `package client
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+// Config holds connection details for the pfSense REST API.
+type Config struct {
+	Host     string
+	Username string
+	Password string
+	HTTP     *http.Client
+}
+
+type authResponse struct {
+	Data struct {
+		Token string ` + "`" + `json:"token"` + "`" + `
+	} ` + "`" + `json:"data"` + "`" + `
+}
+
+func (c *Config) httpClient() *http.Client {
+	if c.HTTP != nil {
+		return c.HTTP
+	}
+	return http.DefaultClient
+}
+
+// GetJWT exchanges username/password for a JWT from the pfSense auth endpoint.
+func (c *Config) GetJWT(ctx context.Context) (string, error) {
+	body, err := json.Marshal(map[string]string{
+		"username": c.Username,
+		"password": c.Password,
+	})
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.Host+"/api/v2/auth/jwt", bytes.NewReader(body))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpClient().Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("auth failed: %s", resp.Status)
+	}
+	var ar authResponse
+	if err := json.NewDecoder(resp.Body).Decode(&ar); err != nil {
+		return "", err
+	}
+	if ar.Data.Token == "" {
+		return "", fmt.Errorf("auth failed: empty token in response")
+	}
+	return ar.Data.Token, nil
+}
+`
+
 func Patch(providerFile, schemaFile string) error {
 	s, err := ParseSchema(schemaFile)
 	if err != nil {
@@ -95,8 +159,14 @@ func Patch(providerFile, schemaFile string) error {
 	if err != nil {
 		return fmt.Errorf("format source: %w", err)
 	}
-	_, err = os.Stdout.Write(formatted)
-	return err
+	if _, err = os.Stdout.Write(formatted); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll("internal/client", 0o755); err != nil {
+		return fmt.Errorf("mkdir internal/client: %w", err)
+	}
+	return os.WriteFile("internal/client/client.go", []byte(clientGo), 0o644)
 }
 
 func isPfsenseProviderMethod(fn *ast.FuncDecl) bool {
@@ -120,7 +190,7 @@ func generateBody(method string, s *spec.Specification) (string, map[string]stri
 	case "Schema":
 		return generateSchema(s)
 	case "Configure":
-		return generateConfigure(), nil
+		return generateConfigure()
 	case "Metadata":
 		return generateMetadata(), nil
 	}
@@ -170,27 +240,52 @@ func generateSchema(s *spec.Specification) (string, map[string]string) {
 		"github.com/hashicorp/terraform-plugin-framework/provider/schema": "",
 	}
 
-	if s.Provider == nil || s.Provider.Schema == nil || len(s.Provider.Schema.Attributes) == 0 {
-		return "\n\tresp.Schema = schema.Schema{}\n", imports
-	}
-
 	var b strings.Builder
 	b.WriteString("\n\tresp.Schema = schema.Schema{\n")
 	b.WriteString("\t\tAttributes: map[string]schema.Attribute{\n")
-	for _, attr := range s.Provider.Schema.Attributes {
-		lit := attrLiteral(attr)
-		if lit == "" {
-			continue
+	b.WriteString("\t\t\t\"host\":     schema.StringAttribute{Required: true},\n")
+	b.WriteString("\t\t\t\"username\": schema.StringAttribute{Required: true},\n")
+	b.WriteString("\t\t\t\"password\": schema.StringAttribute{Required: true, Sensitive: true},\n")
+	if s.Provider != nil && s.Provider.Schema != nil {
+		for _, attr := range s.Provider.Schema.Attributes {
+			lit := attrLiteral(attr)
+			if lit == "" {
+				continue
+			}
+			fmt.Fprintf(&b, "\t\t\t%q: %s,\n", attr.Name, lit)
 		}
-		fmt.Fprintf(&b, "\t\t\t%q: %s,\n", attr.Name, lit)
 	}
 	b.WriteString("\t\t},\n")
 	b.WriteString("\t}\n")
 	return b.String(), imports
 }
 
-func generateConfigure() string {
-	return "\n\t// TODO: initialize API client\n"
+func generateConfigure() (string, map[string]string) {
+	imports := map[string]string{
+		"net/http": "",
+		"time":     "",
+		"github.com/hashicorp/terraform-plugin-framework/path":                   "",
+		"github.com/hashicorp/terraform-plugin-framework/types":                  "",
+		"github.com/unstoppablemango/terraform-provider-pfsense/internal/client": "",
+	}
+	body := `
+	var host, username, password types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("host"), &host)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("username"), &username)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("password"), &password)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	cfg := &client.Config{
+		Host:     host.ValueString(),
+		Username: username.ValueString(),
+		Password: password.ValueString(),
+		HTTP:     &http.Client{Timeout: 30 * time.Second},
+	}
+	resp.DataSourceData = cfg
+	resp.ResourceData = cfg
+`
+	return body, imports
 }
 
 func attrLiteral(attr providerspec.Attribute) string {
