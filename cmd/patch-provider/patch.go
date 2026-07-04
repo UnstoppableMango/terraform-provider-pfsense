@@ -47,6 +47,13 @@ type authResponse struct {
 	} ` + "`" + `json:"data"` + "`" + `
 }
 
+func (c *Config) httpClient() *http.Client {
+	if c.HTTP != nil {
+		return c.HTTP
+	}
+	return http.DefaultClient
+}
+
 // GetJWT exchanges username/password for a JWT from the pfSense auth endpoint.
 func (c *Config) GetJWT(ctx context.Context) (string, error) {
 	body, err := json.Marshal(map[string]string{
@@ -61,7 +68,7 @@ func (c *Config) GetJWT(ctx context.Context) (string, error) {
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.HTTP.Do(req)
+	resp, err := c.httpClient().Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -72,6 +79,9 @@ func (c *Config) GetJWT(ctx context.Context) (string, error) {
 	var ar authResponse
 	if err := json.NewDecoder(resp.Body).Decode(&ar); err != nil {
 		return "", err
+	}
+	if ar.Data.Token == "" {
+		return "", fmt.Errorf("auth failed: empty token in response")
 	}
 	return ar.Data.Token, nil
 }
@@ -253,6 +263,7 @@ func generateSchema(s *spec.Specification) (string, map[string]string) {
 func generateConfigure() (string, map[string]string) {
 	imports := map[string]string{
 		"net/http": "",
+		"time":     "",
 		"github.com/hashicorp/terraform-plugin-framework/path":                   "",
 		"github.com/hashicorp/terraform-plugin-framework/types":                  "",
 		"github.com/unstoppablemango/terraform-provider-pfsense/internal/client": "",
@@ -269,7 +280,7 @@ func generateConfigure() (string, map[string]string) {
 		Host:     host.ValueString(),
 		Username: username.ValueString(),
 		Password: password.ValueString(),
-		HTTP:     &http.Client{},
+		HTTP:     &http.Client{Timeout: 30 * time.Second},
 	}
 	resp.DataSourceData = cfg
 	resp.ResourceData = cfg
