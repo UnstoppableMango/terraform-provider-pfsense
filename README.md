@@ -10,10 +10,6 @@
 A [Terraform](https://www.terraform.io/) provider for [pfSense](https://www.pfsense.org/), generated entirely from the [pfSense REST API](https://github.com/pfrest/pfSense-pkg-RESTAPI) OpenAPI specification via a [Nix](https://nixos.org/)-driven pipeline.
 No provider code is written by hand.
 
-> **Note:** This project is in progress.
-> The pipeline currently produces generated provider Go source code.
-> Compilation into a final provider binary is not yet complete.
-
 ## How it works
 
 The provider is produced by a multi-stage code generation pipeline that transforms the upstream pfSense OpenAPI spec into provider Go source code.
@@ -22,41 +18,44 @@ The provider is produced by a multi-stage code generation pipeline that transfor
 flowchart TD
     A["pfSense REST API\n(OpenAPI JSON)"]
     B["patch-openapi\n(flatten allOf)"]
-    C["Patched OpenAPI spec"]
+    C["Patched OpenAPI spec\n(openapi.json)"]
     D["gen-config\n(build generator config)"]
     E["config.yaml\n(tfplugingen-openapi config)"]
     F["tfplugingen-openapi\nvia a2b genProviderSpec"]
     G["schema.json\n(provider schema)"]
-    H["tfplugingen-sdk\nvia a2b genProvider"]
+    H["a2b genProvider + scaffold\n+ gen-main + patch-provider"]
     I["Provider Go source\n(generated)"]
-    J["slurp-source\n(extract parse.go AST)"]
+    J["slurp-source\n(extract config.go AST)"]
     K["hashicorp/terraform-plugin-codegen-openapi\n(upstream source)"]
     L["internal/config/config.go\n(Config struct)"]
+    M["Go compiler"]
+    N["terraform-provider-pfsense\n(final binary)"]
 
-    A -->|"nix/openapi.nix"| B
-    B --> C
-    C -->|"nix/config.nix"| D
-    D --> E
-    K -->|"nix/upstream.nix"| J
+    K -->|"nix/tools.nix"| J
     J --> L
     L --> D
-    E -->|"nix/provider-spec.nix"| F
+    A -->|"nix/openapi.nix"| B
+    B --> C
+    C -->|"nix/provider-spec.nix"| D
+    D --> E
+    E --> F
     C --> F
     F --> G
-    G -->|"nix/provider.nix"| H
+    G -->|"nix/provider-src.nix"| H
     H --> I
+    I -->|"nix/default.nix"| M
+    M --> N
 ```
 
 ### Pipeline stages
 
 | Nix derivation | Tool | Input | Output |
 |---|---|---|---|
-| `nix/tools.nix` | Go compiler | `cmd/` Go source | CLI tools binary |
-| `nix/upstream.nix` | `slurp-source` | [`hashicorp/terraform-plugin-codegen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) | `internal/config/config.go` |
+| `nix/tools.nix` | Go compiler + `slurp-source` | `cmd/` Go source + [`hashicorp/terraform-plugin-codegen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) | CLI tools binary + `internal/config/config.go` |
 | `nix/openapi.nix` | `patch-openapi` | pfSense REST API [OpenAPI release](https://github.com/pfrest/pfSense-pkg-RESTAPI/releases) | Patched `openapi.json` |
-| `nix/config.nix` | `gen-config` | Patched OpenAPI spec | `config.yaml` |
-| `nix/provider-spec.nix` | [`tfplugingen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) via [`a2b`](https://github.com/UnstoppableMango/a2b) | Config + OpenAPI spec | `schema.json` |
-| `nix/provider.nix` | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) | `schema.json` | Generated provider Go source |
+| `nix/provider-spec.nix` | `gen-config` + [`tfplugingen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) via [`a2b`](https://github.com/UnstoppableMango/a2b) | Patched OpenAPI spec | `config.yaml` → `schema.json` |
+| `nix/provider-src.nix` | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) + `gen-main` + `patch-provider` | `schema.json` | Generated provider Go source |
+| `nix/default.nix` | Go compiler | Provider Go source | `terraform-provider-pfsense` binary |
 
 ## Requirements
 
@@ -66,15 +65,13 @@ flowchart TD
 ## Usage
 
 ```bash
-# Build the default output (generated provider Go source)
+# Build the default output (provider binary)
 nix build
 
 # Build individual pipeline stages
-nix build .#tools       # CLI tools binary
-nix build .#openapi     # patched pfSense OpenAPI spec
-nix build .#config      # generated tfplugingen-openapi config YAML
-nix build .#spec        # generated provider schema JSON
-nix build .#provider    # generated provider Go source (same as default)
+nix build .#tools   # CLI tools binary
+nix build .#src     # generated provider Go source
+nix build .#bin     # provider binary (same as default)
 ```
 
 ## Development
@@ -99,7 +96,7 @@ make update
 
 ### Adding a resource
 
-Edit `pkg/config.go` -> `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path and method for each CRUD operation.
+Edit `cmd/gen-config/config.go` -> `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path and method for each CRUD operation.
 The downstream Nix pipeline picks up the change on the next `nix build`.
 
 ## Key dependencies
