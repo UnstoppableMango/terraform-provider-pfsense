@@ -44,7 +44,7 @@ buildGoApplication {
   src = fs.toSource {
     root = ../.;
     fileset = fs.unions [
-      ../cmd/gen-config
+      ../cmd/gen-plugingen-config
       ../cmd/gen-main
       ../cmd/patch-openapi
       ../cmd/patch-provider

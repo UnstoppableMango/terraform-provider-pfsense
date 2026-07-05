@@ -10,6 +10,6 @@ genProviderSpec {
   openapi-spec = openapi;
 
   config = runCommand "config.yaml" { } ''
-    ${tools}/bin/gen-config ${openapi} $out
+    ${tools}/bin/gen-plugingen-config ${openapi} $out
   '';
 }

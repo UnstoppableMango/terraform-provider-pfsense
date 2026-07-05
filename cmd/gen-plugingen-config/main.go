@@ -6,7 +6,7 @@ import (
 )
 
 var root = &cobra.Command{
-	Use:   "gen-config",
+	Use:   "gen-plugingen-config",
 	Short: "Generates the terraform generator config",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {

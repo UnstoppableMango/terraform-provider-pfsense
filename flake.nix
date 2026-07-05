@@ -87,6 +87,7 @@
               gnumake
               nixfmt
               opentofu
+              watchexec
             ];
 
             GO = "${pkgs.go}/bin/go";

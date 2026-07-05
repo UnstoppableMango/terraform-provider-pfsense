@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"maps"
 	"os"
 	"sort"
 	"strings"
@@ -119,9 +120,7 @@ func Patch(providerFile, schemaFile string) error {
 		if body == "" {
 			continue
 		}
-		for path, alias := range imports {
-			neededImports[path] = alias
-		}
+		maps.Copy(neededImports, imports)
 
 		lbrace := fset.Position(fn.Body.Lbrace).Offset
 		rbrace := fset.Position(fn.Body.Rbrace).Offset
