@@ -47,7 +47,7 @@ buildGoApplication {
       ../cmd/gen-plugingen-config
       ../cmd/gen-main
       ../cmd/patch-openapi
-      ../cmd/patch-provider
+      ../cmd/patch-scaffold
       ../internal
       ../go.mod
       ../go.sum

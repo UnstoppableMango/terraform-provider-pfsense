@@ -44,7 +44,7 @@ let
     # TODO: Factor out the patching of the provider
     mkdir -p $out/provider_pfsense $out/internal/client
     cd $out
-    ${tools}/bin/patch-provider \
+    ${tools}/bin/patch-scaffold \
       ${scaffoldedProvider}/provider.go \
       ${schemaFile} \
       > $out/provider_pfsense/provider.go

@@ -23,7 +23,7 @@ flowchart TD
     E["config.yaml\n(tfplugingen-openapi config)"]
     F["tfplugingen-openapi\nvia a2b genProviderSpec"]
     G["schema.json\n(provider schema)"]
-    H["a2b genProvider + scaffold\n+ gen-main + patch-provider"]
+    H["a2b genProvider + scaffold\n+ gen-main + patch-scaffold"]
     I["Provider Go source\n(generated)"]
     J["slurp-source\n(extract config.go AST)"]
     K["hashicorp/terraform-plugin-codegen-openapi\n(upstream source)"]
@@ -54,7 +54,7 @@ flowchart TD
 | `nix/tools.nix`         | Go compiler + `slurp-source`                                                                                                                                        | `cmd/` Go source + [`hashicorp/terraform-plugin-codegen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) | CLI tools binary + `internal/config/config.go` |
 | `nix/openapi.nix`       | `patch-openapi`                                                                                                                                                     | pfSense REST API [OpenAPI release](https://github.com/pfrest/pfSense-pkg-RESTAPI/releases)                                       | Patched `openapi.json`                         |
 | `nix/provider-spec.nix` | `gen-config` + [`tfplugingen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) via [`a2b`](https://github.com/UnstoppableMango/a2b)          | Patched OpenAPI spec                                                                                                             | `config.yaml` → `schema.json`                  |
-| `nix/provider-src.nix`  | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) + `gen-main` + `patch-provider` | `schema.json`                                                                                                                    | Generated provider Go source                   |
+| `nix/provider-src.nix`  | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) + `gen-main` + `patch-scaffold` | `schema.json`                                                                                                                    | Generated provider Go source                   |
 | `nix/default.nix`       | Go compiler                                                                                                                                                         | Provider Go source                                                                                                               | `terraform-provider-pfsense` binary            |
 
 ## Requirements

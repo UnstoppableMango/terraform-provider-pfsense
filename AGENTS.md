@@ -35,7 +35,7 @@ Single Go module at repo root; CLI tools live in `cmd/`.
 
 ### Code generation pipeline (nix build order)
 
-1. **`nix/tools.nix`** — builds CLI tools from `cmd/` (`patch-openapi`, `gen-plugingen-config`, `gen-main`, `slurp-source`, `patch-provider`); `slurp-source` fetches `config.go` from upstream HashiCorp repo (do not edit `internal/config/config.go` manually).
+1. **`nix/tools.nix`** — builds CLI tools from `cmd/` (`patch-openapi`, `gen-plugingen-config`, `gen-main`, `slurp-source`, `patch-scaffold`); `slurp-source` fetches `config.go` from upstream HashiCorp repo (do not edit `internal/config/config.go` manually).
 2. **`nix/openapi.nix`** — fetches pfSense REST API OpenAPI JSON from GitHub releases; runs `patch-openapi` to flatten `allOf` entries, producing a spec compatible with the HashiCorp generator.
 3. **`nix/provider-spec.nix`** — runs `gen-config` then calls `a2b`'s `genProviderSpec` (wraps `tfplugingen-openapi`) to produce `schema.json`.
 4. **`nix/provider-src.nix`** — calls `a2b`'s `genProvider` + `scaffold` (wraps `tfplugingensdk`) with the schema to produce generated provider Go source; `nix/default.nix` compiles it into the final provider binary.
@@ -48,7 +48,7 @@ Single Go module at repo root; CLI tools live in `cmd/`.
 | `cmd/gen-plugingen-config/` | Builds `config.Config` from OpenAPI model and writes YAML                                                                                           |
 | `cmd/gen-main/`             | Generates `main.go` for the provider binary                                                                                                         |
 | `cmd/slurp-source/`         | Extracts `config.go` from upstream HashiCorp repo using Go's AST                                                                                    |
-| `cmd/patch-provider/`       | Patches the scaffolded provider Go source                                                                                                           |
+| `cmd/patch-scaffold/`       | Patches the scaffolded provider Go source                                                                                                           |
 | `internal/config/config.go` | **Generated** — copied from `hashicorp/terraform-plugin-codegen-openapi`; defines `Config`, `Resource`, `DataSource`, `OpenApiSpecLocation` structs |
 | `mock/`                     | Mock pfSense HTTP server for integration tests                                                                                                      |
 | `test/`                     | Integration tests                                                                                                                                   |
