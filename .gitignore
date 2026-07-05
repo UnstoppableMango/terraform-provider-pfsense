@@ -5,3 +5,5 @@ nix/tools/result*
 .envrc
 .direnv/
 go.work*
+.vscode/*
+!.vscode/extensions.json
