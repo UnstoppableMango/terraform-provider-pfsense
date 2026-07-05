@@ -2,15 +2,17 @@ package integration_test
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/unstoppablemango/terraform-provider-pfsense/mock"
 )
 
 func TestMain(m *testing.M) {
-	srv := mock.NewServer()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
 	defer srv.Close()
 	if err := os.Setenv("PFSENSE_MOCK_URL", srv.URL); err != nil {
 		panic(err)
