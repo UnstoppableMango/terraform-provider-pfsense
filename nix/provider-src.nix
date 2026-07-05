@@ -50,13 +50,21 @@ let
       > $out/provider_pfsense/provider.go
   '';
 
+  # generatedCmd = runCommand "cmd" { } ''
+  #   mkdir -p $out/cmd/terraform-provider-pfsense
+  #   ${tools}/bin/gen-main \
+  #     "registry.terraform.io/unstoppablemango/pfsense" \
+  #     "${goPackage}" \
+  #     "provider_pfsense" \
+  #     > $out/cmd/terraform-provider-pfsense/main.go
+  # '';
+
   generatedCmd = runCommand "cmd" { } ''
     mkdir -p $out/cmd/terraform-provider-pfsense
-    ${tools}/bin/gen-main \
-      "registry.terraform.io/unstoppablemango/pfsense" \
-      "${goPackage}" \
-      "provider_pfsense" \
-      > $out/cmd/terraform-provider-pfsense/main.go
+    ${tools}/bin/gen-provider $out \
+      --registry-address "registry.terraform.io/unstoppablemango/pfsense" \
+      --module-path "${goPackage}" \
+      --provider-package "provider_pfsense"
   '';
 
   goSrc = symlinkJoin {

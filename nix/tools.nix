@@ -45,7 +45,7 @@ buildGoApplication {
     root = ../.;
     fileset = fs.unions [
       ../cmd/gen-plugingen-config
-      ../cmd/gen-main
+      ../cmd/gen-provider
       ../cmd/patch-openapi
       ../cmd/patch-scaffold
       ../internal
