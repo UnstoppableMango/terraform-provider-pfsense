@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/unmango/go/cli"
 )
@@ -12,12 +10,7 @@ var rootCmd = &cobra.Command{
 	Short: "Generate a Terraform provider main.go",
 	Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
-		data := MainData{
-			RegistryAddress: args[0],
-			ModulePath:      args[1],
-			ProviderPackage: args[2],
-		}
-		if err := Generate(os.Stdout, data); err != nil {
+		if err := Generate(cmd.OutOrStdout()); err != nil {
 			cli.Fail(err)
 		}
 	},
