@@ -10,16 +10,19 @@ import (
 var data TemplateData
 
 var rootCmd = &cobra.Command{
-	Use:   "gen-provider <output> [FLAGS...]",
+	Use:   "gen-provider <output> <schema>",
 	Short: "Generate Terraform provider glue code",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		root, err := os.OpenRoot(args[0])
 		if err != nil {
 			cli.Fail(err)
 		}
-
-		if err := Generate(root, data); err != nil {
+		s, err := ParseSchema(args[1])
+		if err != nil {
+			cli.Fail(err)
+		}
+		if err := Generate(root, data, s); err != nil {
 			cli.Fail(err)
 		}
 	},

@@ -40,37 +40,25 @@ let
     scaffoldName = "pfsense";
   };
 
-  patchedProvider = runCommand "provider_pfsense" { } ''
-    # TODO: Factor out the patching of the provider
-    mkdir -p $out/provider_pfsense $out/internal/client
-    cd $out
-    ${tools}/bin/patch-scaffold \
-      ${scaffoldedProvider}/provider.go \
-      ${schemaFile} \
-      > $out/provider_pfsense/provider.go
-  '';
-
-  # generatedCmd = runCommand "cmd" { } ''
-  #   mkdir -p $out/cmd/terraform-provider-pfsense
-  #   ${tools}/bin/gen-main \
-  #     "registry.terraform.io/unstoppablemango/pfsense" \
-  #     "${goPackage}" \
-  #     "provider_pfsense" \
-  #     > $out/cmd/terraform-provider-pfsense/main.go
-  # '';
-
-  generatedCmd = runCommand "cmd" { } ''
-    mkdir -p $out/cmd/terraform-provider-pfsense
-    ${tools}/bin/gen-provider $out \
+  generatedSrc = runCommand "generated-src" { } ''
+    mkdir -p $out
+    ${tools}/bin/gen-provider $out ${schemaFile} \
       --registry-address "registry.terraform.io/unstoppablemango/pfsense" \
       --module-path "${goPackage}" \
       --provider-package "provider_pfsense"
   '';
 
+  patchedProvider = runCommand "provider_pfsense" { } ''
+    mkdir -p $out/provider_pfsense
+    ${tools}/bin/patch-scaffold \
+      ${scaffoldedProvider}/provider.go \
+      > $out/provider_pfsense/provider.go
+  '';
+
   goSrc = symlinkJoin {
     name = "go-src";
     paths = [
-      generatedCmd
+      generatedSrc
       patchedProvider
       (genProvider {
         name = "terraform-provider-pfsense";
