@@ -11,7 +11,10 @@ build: generate
 test:
 	nix run .#tests
 
-generate gen: nix/go.mod.patch nix/gomod2nix.toml.patch
+generate gen: schema.json nix/go.mod.patch nix/gomod2nix.toml.patch
+
+schema.json: nix/provider-spec.nix nix/openapi.nix nix/tools.nix flake.lock
+	cp $$(nix build .#bin.spec --no-link --print-out-paths) $@
 
 src:
 	nix build .#bin.src
