@@ -26,7 +26,7 @@ let
       scaffold
       tools
       ;
-    schemaFile = spec;
+    schemaFile = ../schema.json;
   };
 in
 buildGoApplication {
