@@ -13,7 +13,7 @@ test:
 
 generate gen: schema.json nix/go.mod.patch nix/gomod2nix.toml.patch
 
-schema.json: nix/provider-spec.nix nix/openapi.nix nix/tools.nix flake.lock
+schema.json: ${GO_SRC} ${NIX_SRC} flake.lock
 	cp $$(nix build .#bin.spec --no-link --print-out-paths) $@
 
 src:
