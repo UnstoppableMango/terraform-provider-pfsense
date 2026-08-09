@@ -16,6 +16,12 @@ let
   goPackage = "github.com/unstoppablemango/terraform-provider-pfsense";
   schema = builtins.fromJSON (builtins.readFile schemaFile);
 
+  # genProvider expects input to be a directory containing schema.json
+  schemaDir = runCommand "schema-dir" { } ''
+    mkdir $out
+    cp ${schemaFile} $out/schema.json
+  '';
+
   toScaffold =
     resource:
     let
@@ -66,7 +72,7 @@ let
       patchedProvider
       (genProvider {
         name = "terraform-provider-pfsense";
-        input = schemaFile;
+        input = schemaDir;
       })
       (runCommand "go.mod" { } ''
         mkdir -p $out && cd $out
