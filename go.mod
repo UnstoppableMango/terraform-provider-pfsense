@@ -8,7 +8,7 @@ require (
 	charm.land/log/v2 v2.0.0
 	github.com/hashicorp/terraform-plugin-codegen-spec v0.2.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
-	github.com/pb33f/libopenapi v0.38.5
+	github.com/pb33f/libopenapi v0.38.7
 	github.com/spf13/cobra v1.10.2
 	github.com/unmango/go v0.16.6
 	golang.org/x/tools v0.49.0
