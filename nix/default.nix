@@ -1,0 +1,47 @@
+{
+  a2b,
+  buildGoApplication,
+  gomod2nix,
+  pkgs,
+}:
+let
+  inherit (a2b.terraform) genProvider genProviderSpec scaffold;
+
+  tools = pkgs.callPackage ./tools.nix {
+    inherit buildGoApplication;
+  };
+
+  openapi = pkgs.callPackage ./openapi.nix {
+    inherit tools;
+  };
+
+  spec = pkgs.callPackage ./provider-spec.nix {
+    inherit genProviderSpec openapi tools;
+  };
+
+  src = pkgs.callPackage ./provider-src.nix {
+    inherit
+      genProvider
+      gomod2nix
+      scaffold
+      tools
+      ;
+    schemaFile = spec;
+  };
+in
+buildGoApplication {
+  pname = "terraform-provider-pfsense";
+  version = "0.1.0";
+  modules = "${src}/gomod2nix.toml";
+  inherit src;
+
+  subPackages = [ "cmd/terraform-provider-pfsense" ];
+
+  passthru = { inherit spec src tools; };
+
+  ldflags = [
+    "-w"
+    "-s"
+    "-X github.com/unstoppablemango/terraform-provider-pfsense/provider_pfsense.Version=0.1.0"
+  ];
+}

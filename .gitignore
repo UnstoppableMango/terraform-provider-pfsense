@@ -1,0 +1,9 @@
+bin/
+/result*
+nix/tools/result*
+.claude/
+.envrc
+.direnv/
+go.work*
+.vscode/*
+!.vscode/extensions.json

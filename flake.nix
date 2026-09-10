@@ -1,0 +1,106 @@
+{
+  description = "A Terraform Provider for pfSense";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    systems.url = "github:UnstoppableMango/nix-systems";
+
+    globset = {
+      url = "github:pdtpartners/globset";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.inputs.systems.follows = "systems";
+    };
+
+    mangopkgs = {
+      url = "github:unmango/pkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.gomod2nix.follows = "gomod2nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+
+    a2b = {
+      url = "github:UnstoppableMango/a2b";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.mangopkgs.follows = "mangopkgs";
+    };
+  };
+
+  outputs =
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
+      imports = with inputs; [
+        systems.flakeModule
+        treefmt-nix.flakeModule
+      ];
+
+      perSystem =
+        { pkgs, inputs', ... }:
+        let
+          inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication gomod2nix;
+          a2b = inputs'.a2b.legacyPackages.lib;
+
+          bin = pkgs.callPackage ./nix {
+            inherit buildGoApplication a2b;
+            inherit gomod2nix;
+          };
+        in
+        {
+          apps = {
+            tests = {
+              program = pkgs.callPackage ./nix/tests.nix {
+                providerBin = bin;
+              };
+            };
+          };
+
+          packages = {
+            inherit (bin) tools src;
+            inherit bin;
+            default = bin;
+          };
+
+          devShells.default = pkgs.mkShellNoCC {
+            packages = with pkgs; [
+              direnv
+              go
+              gomod2nix
+              gopls
+              ginkgo
+              gnumake
+              nixfmt
+              opentofu
+            ];
+
+            GO = "${pkgs.go}/bin/go";
+            GOMOD2NIX = "${gomod2nix}/bin/gomod2nix";
+          };
+
+          treefmt.programs = {
+            actionlint.enable = true;
+            nixfmt.enable = true;
+            gofmt.enable = true;
+          };
+        };
+    };
+}
