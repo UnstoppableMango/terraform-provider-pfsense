@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Nix Flake](https://img.shields.io/badge/nix-flake-5277C3?logo=nixos)](flake.nix)
 [![GitHub last commit](https://img.shields.io/github/last-commit/UnstoppableMango/terraform-provider-pfsense)](https://github.com/UnstoppableMango/terraform-provider-pfsense/commits/main)
+[![Hercules CI](https://hercules-ci.com/api/v1/site/github/account/UnstoppableMango/project/terraform-provider-pfsense/badge)](https://hercules-ci.com/github/UnstoppableMango/terraform-provider-pfsense)
 
 A [Terraform](https://www.terraform.io/) provider for [pfSense](https://www.pfsense.org/), generated entirely from the [pfSense REST API](https://github.com/pfrest/pfSense-pkg-RESTAPI) OpenAPI specification via a [Nix](https://nixos.org/)-driven pipeline.
 No provider code is written by hand.
