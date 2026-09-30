@@ -2,7 +2,7 @@ module github.com/unstoppablemango/terraform-provider-pfsense
 
 go 1.26.3
 
-toolchain go1.26.4
+toolchain go1.27.1
 
 require (
 	charm.land/log/v2 v2.0.1
