@@ -7,6 +7,13 @@
 let
   inherit (a2b.terraform) genProvider genProviderSpec scaffold;
 
+  # Copied to the store on its own: a2b's genProvider passes the path through
+  # toString, which would otherwise name a file outside the build sandbox.
+  schemaFile = builtins.path {
+    path = ../schema.json;
+    name = "schema.json";
+  };
+
   tools = pkgs.callPackage ./tools.nix {
     inherit buildGoApplication;
   };
@@ -24,20 +31,32 @@ let
       genProvider
       gomod2nix
       scaffold
+      schemaFile
       tools
       ;
-    schemaFile = ../schema.json;
   };
 in
 buildGoApplication {
   pname = "terraform-provider-pfsense";
   version = "0.1.0";
-  modules = "${src}/gomod2nix.toml";
+  modules = ./provider-gomod2nix.toml;
   inherit src;
+
+  # The Go build cache filters go.mod out of src during evaluation, and src is
+  # the generated provider source, so the cache would make the whole pipeline
+  # an import-from-derivation.
+  disableGoCache = true;
 
   subPackages = [ "cmd/terraform-provider-pfsense" ];
 
-  passthru = { inherit spec src tools; };
+  passthru = {
+    inherit
+      schemaFile
+      spec
+      src
+      tools
+      ;
+  };
 
   ldflags = [
     "-w"
