@@ -8,6 +8,7 @@ require (
 	charm.land/log/v2 v2.0.1
 	github.com/hashicorp/terraform-plugin-codegen-spec v0.2.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
+	github.com/pb33f/go-yaml v0.1.1
 	github.com/pb33f/libopenapi v0.41.7
 	github.com/spf13/cobra v1.10.2
 	github.com/unmango/go v0.16.6
@@ -68,7 +69,6 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/oklog/run v1.2.0 // indirect
-	github.com/pb33f/go-yaml v0.1.1 // indirect
 	github.com/pb33f/jsonpath v0.8.4 // indirect
 	github.com/pb33f/ordered-map/v2 v2.3.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -81,7 +81,6 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.18.1 // indirect
-	go.yaml.in/yaml/v4 v4.0.0-rc.6 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
 	golang.org/x/mod v0.42.0 // indirect
