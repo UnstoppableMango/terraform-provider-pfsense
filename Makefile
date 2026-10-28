@@ -14,7 +14,7 @@ test:
 
 generate gen: schema.json nix/go.mod.patch nix/provider-gomod2nix.toml
 
-schema.json: ${GEN_SRC} ${NIX_SRC} flake.lock
+schema.json: ${GEN_SRC} ${NIX_SRC} flake.lock go.mod go.sum nix/gomod2nix.toml
 	out=$$(nix build .#bin.spec --no-link --print-out-paths) && install -m 644 "$$out" $@
 
 src:

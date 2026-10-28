@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"testing"
 
 	"github.com/pb33f/libopenapi"
@@ -139,7 +140,7 @@ func TestDropUnrepresentableIntBounds(t *testing.T) {
 	if port := prop("port"); port.Minimum == nil || port.Maximum == nil || *port.Maximum != 65535 {
 		t.Errorf("expected port bounds to be kept")
 	}
-	if offset := prop("offset"); offset.Minimum == nil {
+	if offset := prop("offset"); offset.Minimum == nil || *offset.Minimum != math.MinInt64 {
 		t.Errorf("expected offset minimum to be kept, -2^63 converts to int64 exactly")
 	}
 	if huge := prop("huge"); huge.Maximum != nil {

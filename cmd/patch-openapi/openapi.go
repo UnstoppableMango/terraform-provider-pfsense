@@ -64,8 +64,10 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 // when the bound, read as a float64, is outside the int64 range. The generator
 // converts bounds with int64(float64), whose result for those values differs by
 // architecture: pfrest's maximum of 2^63-1 rounds up to 2^63 and becomes
-// MaxInt64 on arm64 but MinInt64 on amd64. Such a bound constrains nothing an
-// int64 attribute could hold, so dropping it loses no validation.
+// MaxInt64 on arm64 but MinInt64 on amd64. A maximum of 2^63-1 constrains
+// nothing an int64 attribute could hold, so dropping it loses no validation.
+// Maximums from 2^63-512 to 2^63-2 also round to 2^63 and are dropped, losing
+// a bound they would have enforced; pfrest uses none of them.
 func dropUnrepresentableIntBounds(node *yaml.Node) {
 	if node == nil {
 		return
