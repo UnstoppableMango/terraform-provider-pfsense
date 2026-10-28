@@ -13,7 +13,10 @@ go test ./...       # unit tests (root module)
 make test           # or: nix run .#tests (integration tests)
 
 # Lint / format
-nix flake check     # runs actionlint, nixfmt, gofmt via treefmt
+nix flake check     # runs actionlint, nixfmt, gofmt via treefmt, and the gen/schema.json drift check
+
+# Regenerate checked-in pipeline outputs
+make generate       # gen/schema.json, gen/go.mod.patch, gen/gomod2nix.toml
 
 # Update go dependencies
 make tidy   # runs go mod tidy + gomod2nix
@@ -38,7 +41,10 @@ Single Go module at repo root; CLI tools live in `cmd/`.
 1. **`nix/tools.nix`** — builds CLI tools from `cmd/` (`patch-openapi`, `gen-config`, `gen-main`, `slurp-source`, `patch-provider`); `slurp-source` fetches `config.go` from upstream HashiCorp repo (do not edit `internal/config/config.go` manually).
 2. **`nix/openapi.nix`** — fetches pfSense REST API OpenAPI JSON from GitHub releases; runs `patch-openapi` to flatten `allOf` entries, producing a spec compatible with the HashiCorp generator.
 3. **`nix/provider-spec.nix`** — runs `gen-config` then calls `a2b`'s `genProviderSpec` (wraps `tfplugingen-openapi`) to produce `schema.json`.
-4. **`nix/provider-src.nix`** — calls `a2b`'s `genProvider` + `scaffold` (wraps `tfplugingensdk`) with the schema to produce generated provider Go source; `nix/default.nix` compiles it into the final provider binary.
+4. **`nix/provider-src.nix`** — calls `a2b`'s `genProvider` + `scaffold` (wraps `tfplugingensdk`) with the checked-in `gen/schema.json` to produce generated provider Go source; `nix/default.nix` compiles it into the final provider binary.
+
+The pipeline is split at `schema.json` to avoid import-from-derivation: `provider-src.nix` reads the schema at evaluation time to scaffold one package per resource, and `nix/default.nix` reads the provider's `gomod2nix.toml`, so both are committed under `gen/` rather than read out of a derivation, along with the `go.mod.patch` applied to the generated source.
+Everything in `gen/` is written by `make generate`; do not edit it by hand. The `schema` flake check fails when the committed `gen/schema.json` differs from what `nix/provider-spec.nix` produces.
 
 ### Go code roles
 
@@ -62,7 +68,7 @@ Single Go module at repo root; CLI tools live in `cmd/`.
 
 ### Adding a new resource
 
-Edit `cmd/gen-config/config.go` → `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path/method for each CRUD operation. The downstream Nix pipeline will pick up the change on the next `nix build`.
+Edit `cmd/gen-config/config.go` → `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path/method for each CRUD operation. Then run `make generate` and commit `gen/`, which the provider build reads.
 
 ## Agent skills
 

@@ -4,8 +4,11 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"math"
+	"strconv"
 
 	"charm.land/log/v2"
+	"github.com/pb33f/go-yaml"
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/bundler"
 	"github.com/pb33f/libopenapi/datamodel"
@@ -39,6 +42,8 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 		return err
 	}
 
+	dropUnrepresentableIntBounds(doc.GetSpecInfo().RootNode)
+
 	model, err := doc.BuildV3Model()
 	if err != nil {
 		return err
@@ -53,6 +58,60 @@ func PatchSpec(ctx context.Context, src, dest string) error {
 	}
 
 	return os.WriteFile(dest, bundled, 0o644)
+}
+
+// dropUnrepresentableIntBounds removes the minimum and maximum of integer schemas
+// when the bound, read as a float64, is outside the int64 range. The generator
+// converts bounds with int64(float64), whose result for those values differs by
+// architecture: pfrest's maximum of 2^63-1 rounds up to 2^63 and becomes
+// MaxInt64 on arm64 but MinInt64 on amd64. A maximum of 2^63-1 constrains
+// nothing an int64 attribute could hold, so dropping it loses no validation.
+// Maximums from 2^63-512 to 2^63-2 also round to 2^63 and are dropped, losing
+// a bound they would have enforced; pfrest uses none of them.
+func dropUnrepresentableIntBounds(node *yaml.Node) {
+	if node == nil {
+		return
+	}
+	if node.Kind == yaml.MappingNode && isIntegerSchema(node) {
+		kept := node.Content[:0]
+		for i := 0; i+1 < len(node.Content); i += 2 {
+			key, value := node.Content[i], node.Content[i+1]
+			if (key.Value == "minimum" || key.Value == "maximum") && !fitsInt64(value.Value) {
+				continue
+			}
+			kept = append(kept, key, value)
+		}
+		node.Content = kept
+	}
+	for _, child := range node.Content {
+		dropUnrepresentableIntBounds(child)
+	}
+}
+
+func isIntegerSchema(node *yaml.Node) bool {
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		if node.Content[i].Value != "type" {
+			continue
+		}
+		// OpenAPI 3.1 allows a list of types, such as [integer, "null"]
+		types := node.Content[i+1]
+		if types.Value == "integer" {
+			return true
+		}
+		for _, t := range types.Content {
+			if t.Value == "integer" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func fitsInt64(value string) bool {
+	// A literal beyond float64's range parses to ±Inf alongside ErrRange, and a
+	// value that is not a number parses to 0, which fits.
+	f, _ := strconv.ParseFloat(value, 64)
+	return f >= math.MinInt64 && f < math.MaxInt64
 }
 
 func mergeAllOf(proxy *highbase.SchemaProxy, target *highbase.Schema) {

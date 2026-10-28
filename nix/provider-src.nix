@@ -1,6 +1,5 @@
 {
   applyPatches,
-  diffutils,
   genProvider,
   go,
   gomod2nix,
@@ -89,30 +88,22 @@ let
     src = runCommand "deref-symlinks" { } ''
       cp -rL ${goSrc} $out
     '';
-    patches = [
-      ./go.mod.patch
-      ./gomod2nix.toml.patch
-    ];
+    patches = [ ../gen/go.mod.patch ];
   };
 
-  gomod2nixTomlPatch = writeShellApplication {
-    name = "gomod2nix.toml.patch.sh";
-    runtimeInputs = [
-      gomod2nix
-      diffutils
-    ];
+  gomod2nixToml = writeShellApplication {
+    name = "gomod2nix.toml.sh";
+    runtimeInputs = [ gomod2nix ];
 
     text = ''
       tmpdir=$(mktemp -d)
       gomod2nix generate --dir "${patched}" --outdir "$tmpdir"
-      diff -u /dev/null "$tmpdir/gomod2nix.toml" \
-        --label /dev/null \
-        --label b/gomod2nix.toml > "$1" || true
+      cp "$tmpdir/gomod2nix.toml" "$1"
     '';
   };
 in
 patched.overrideAttrs (oldAttrs: {
   passthru = {
-    inherit goModPatch gomod2nixTomlPatch;
+    inherit goModPatch gomod2nixToml;
   };
 })

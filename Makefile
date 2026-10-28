@@ -3,6 +3,7 @@ _ != mkdir -p bin
 GOMOD2NIX ?= gomod2nix
 GO_SRC := $(shell find . -name '*.go')
 NIX_SRC := $(shell find . -name '*.nix')
+GEN_SRC := $(shell find cmd internal -name '*.go' -not -name '*_test.go')
 
 build: generate
 	nix build .#
@@ -11,7 +12,11 @@ build: generate
 test:
 	nix run .#tests
 
-generate gen: nix/go.mod.patch nix/gomod2nix.toml.patch
+.PHONY: generate gen
+generate gen: gen/schema.json gen/go.mod.patch gen/gomod2nix.toml
+
+gen/schema.json: ${GEN_SRC} ${NIX_SRC} flake.lock go.mod go.sum nix/gomod2nix.toml
+	out=$$(nix build .#bin.spec --no-link --print-out-paths) && install -m 644 "$$out" $@
 
 src:
 	nix build .#bin.src
@@ -30,11 +35,11 @@ check: generate
 go.sum: go.mod ${GO_SRC}
 	go mod tidy
 
-nix/go.mod.patch: ${NIX_SRC} flake.lock
+gen/go.mod.patch: gen/schema.json ${NIX_SRC} flake.lock
 	nix run .#bin.src.goModPatch -- $@
 
-nix/gomod2nix.toml.patch: nix/go.mod.patch
-	nix run .#bin.src.gomod2nixTomlPatch -- $@
+gen/gomod2nix.toml: gen/go.mod.patch
+	nix run .#bin.src.gomod2nixToml -- $@
 
 nix/gomod2nix.toml: go.sum
 	$(GOMOD2NIX) generate --outdir ./nix

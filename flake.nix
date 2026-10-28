@@ -80,6 +80,19 @@
             default = bin;
           };
 
+          checks.schema =
+            pkgs.runCommand "schema-up-to-date"
+              {
+                nativeBuildInputs = [ pkgs.diffutils ];
+              }
+              ''
+                if ! diff -u ${bin.schemaFile} ${bin.spec}; then
+                  echo "gen/schema.json is out of date, run 'make generate'" >&2
+                  exit 1
+                fi
+                touch $out
+              '';
+
           devShells.default = pkgs.mkShellNoCC {
             packages = with pkgs; [
               direnv
