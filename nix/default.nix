@@ -7,12 +7,7 @@
 let
   inherit (a2b.terraform) genProvider genProviderSpec scaffold;
 
-  # Copied to the store on its own: a2b's genProvider passes the path through
-  # toString, which would otherwise name a file outside the build sandbox.
-  schemaFile = builtins.path {
-    path = ../gen/schema.json;
-    name = "schema.json";
-  };
+  schemaFile = ../gen/schema.json;
 
   tools = pkgs.callPackage ./tools.nix {
     inherit buildGoApplication;
