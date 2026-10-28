@@ -12,9 +12,10 @@ build: generate
 test:
 	nix run .#tests
 
-generate gen: schema.json nix/go.mod.patch nix/provider-gomod2nix.toml
+.PHONY: generate gen
+generate gen: gen/schema.json gen/go.mod.patch gen/gomod2nix.toml
 
-schema.json: ${GEN_SRC} ${NIX_SRC} flake.lock go.mod go.sum nix/gomod2nix.toml
+gen/schema.json: ${GEN_SRC} ${NIX_SRC} flake.lock go.mod go.sum nix/gomod2nix.toml
 	out=$$(nix build .#bin.spec --no-link --print-out-paths) && install -m 644 "$$out" $@
 
 src:
@@ -34,10 +35,10 @@ check: generate
 go.sum: go.mod ${GO_SRC}
 	go mod tidy
 
-nix/go.mod.patch: schema.json ${NIX_SRC} flake.lock
+gen/go.mod.patch: gen/schema.json ${NIX_SRC} flake.lock
 	nix run .#bin.src.goModPatch -- $@
 
-nix/provider-gomod2nix.toml: nix/go.mod.patch
+gen/gomod2nix.toml: gen/go.mod.patch
 	nix run .#bin.src.gomod2nixToml -- $@
 
 nix/gomod2nix.toml: go.sum

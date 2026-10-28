@@ -87,7 +87,7 @@
               }
               ''
                 if ! diff -u ${bin.schemaFile} ${bin.spec}; then
-                  echo "schema.json is out of date, run 'make schema.json'" >&2
+                  echo "gen/schema.json is out of date, run 'make generate'" >&2
                   exit 1
                 fi
                 touch $out

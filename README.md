@@ -55,7 +55,7 @@ flowchart TD
 | `nix/tools.nix` | Go compiler + `slurp-source` | `cmd/` Go source + [`hashicorp/terraform-plugin-codegen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) | CLI tools binary + `internal/config/config.go` |
 | `nix/openapi.nix` | `patch-openapi` | pfSense REST API [OpenAPI release](https://github.com/pfrest/pfSense-pkg-RESTAPI/releases) | Patched `openapi.json` |
 | `nix/provider-spec.nix` | `gen-config` + [`tfplugingen-openapi`](https://github.com/hashicorp/terraform-plugin-codegen-openapi) via [`a2b`](https://github.com/UnstoppableMango/a2b) | Patched OpenAPI spec | `config.yaml` → `schema.json` |
-| `nix/provider-src.nix` | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) + `gen-main` + `patch-provider` | Checked-in `schema.json` | Generated provider Go source |
+| `nix/provider-src.nix` | [`tfplugingen-sdk`](https://github.com/hashicorp/terraform-plugin-codegen-sdk) via [`a2b`](https://github.com/UnstoppableMango/a2b) + `gen-main` + `patch-provider` | Checked-in `gen/schema.json` | Generated provider Go source |
 | `nix/default.nix` | Go compiler | Provider Go source | `terraform-provider-pfsense` binary |
 
 ## Requirements
@@ -97,8 +97,8 @@ make update
 
 ### Adding a resource
 
-Edit `cmd/gen-config/config.go` -> `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path and method for each CRUD operation, then run `make schema.json` and commit the regenerated schema.
-`nix build` reads the committed schema, so the change reaches the provider only once it is regenerated, and `nix flake check` fails while the committed `schema.json` is out of date.
+Edit `cmd/gen-config/config.go` -> `ConfigFor()` to add an entry to the `Resources` map with the appropriate OpenAPI path and method for each CRUD operation, then run `make generate` and commit the regenerated `gen/` files.
+`nix build` reads the committed schema, so the change reaches the provider only once it is regenerated, and `nix flake check` fails while the committed `gen/schema.json` is out of date.
 
 ## Key dependencies
 

@@ -88,7 +88,7 @@ let
     src = runCommand "deref-symlinks" { } ''
       cp -rL ${goSrc} $out
     '';
-    patches = [ ./go.mod.patch ];
+    patches = [ ../gen/go.mod.patch ];
   };
 
   gomod2nixToml = writeShellApplication {

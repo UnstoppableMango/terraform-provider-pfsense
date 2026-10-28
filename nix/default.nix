@@ -10,7 +10,7 @@ let
   # Copied to the store on its own: a2b's genProvider passes the path through
   # toString, which would otherwise name a file outside the build sandbox.
   schemaFile = builtins.path {
-    path = ../schema.json;
+    path = ../gen/schema.json;
     name = "schema.json";
   };
 
@@ -39,7 +39,7 @@ in
 buildGoApplication {
   pname = "terraform-provider-pfsense";
   version = "0.1.0";
-  modules = ./provider-gomod2nix.toml;
+  modules = ../gen/gomod2nix.toml;
   inherit src;
 
   # The Go build cache filters go.mod out of src during evaluation, and src is
