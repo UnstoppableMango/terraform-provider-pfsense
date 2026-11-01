@@ -1,12 +1,12 @@
-# Resources are identified by a Key, never by the pfSense API id
+# Resources are identified by a Key, not by the positional pfSense API id
 
 pfSense REST API v2.8.1 gives an object an `id` that is its position in its config section, and it shifts whenever a sibling is deleted, moved or re-sorted ([#55](https://github.com/UnstoppableMango/terraform-provider-pfsense/issues/55)).
-So the provider stores a **Key** as the Terraform resource id and does a **Lookup** on the plural endpoint, requiring exactly one match, before every singular call; the API id is never stored or reused.
+So the provider stores a **Key** as the Terraform resource id and does a **Lookup** on the plural endpoint, requiring exactly one match, before every singular call; a positional API id is never stored or reused.
 Decided in [#58](https://github.com/UnstoppableMango/terraform-provider-pfsense/issues/58).
 
 ## Decision
 
-- Each resource's Key is declared next to its entry in `cmd/gen-config`, because the spec carries no uniqueness metadata. Models whose API id is a string (DHCP server, interface, table) use the API id as the Key.
+- Each resource's Key is declared next to its entry in `cmd/gen-config`, because the spec carries no uniqueness metadata. Models whose API id is a stable string (DHCP server, interface, table) use that string API id as the Key; this is the one case where state holds an API id.
 - A Lookup filters with an exact match and then checks that the returned object's Key fields equal the request, because pfSense ignores an unknown filter key and would match everything.
 - Read: zero matches removes the resource from state; several matches is an error naming the Key and the count. Update and Delete fail on zero or several.
 - Key fields force replacement when changed.

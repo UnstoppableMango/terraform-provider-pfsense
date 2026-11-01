@@ -5,7 +5,7 @@ Terraform provider for pfSense, generated from the pfSense REST API's OpenAPI sp
 ## Language
 
 **API id**:
-The `id` the pfSense REST API returns for an object: its position in its config section. It shifts when siblings are deleted, moved or re-sorted, so it identifies an object only for the instant it was read.
+The `id` the pfSense REST API returns for an object. For most resources it is the object's position in its config section, which shifts when siblings are deleted, moved or re-sorted, so it identifies the object only for the instant it was read. A few resources instead have a stable string API id, such as an interface name like `lan`.
 _Avoid_: object id, resource id
 
 **Key**:
@@ -22,10 +22,11 @@ _Avoid_: tag, label
 
 ## Relationships
 
-- Every operation on an existing object starts with a **Lookup** of its **Key**; an **API id** is never stored or reused.
+- Every operation on an existing object starts with a **Lookup** of its **Key**; a positional **API id** is never stored or reused.
+- A stable string **API id** is itself the resource's **Key**.
 - A resource's **Key** is one or more of its fields, or a **Marker** when no field is unique.
 - A child resource's **Key** includes its parent's id.
 
 ## Flagged ambiguities
 
-- "id" means the **API id** in the REST API and the **Key** in Terraform state; the two are never the same value.
+- "id" means the **API id** in the REST API and the **Key** in Terraform state; they are the same value only for resources whose **API id** is a stable string.
