@@ -20,12 +20,30 @@ _Avoid_: search, find
 A provider-written tag in an object's description that serves as its **Key** when the resource has no field that pfSense keeps unique.
 _Avoid_: tag, label
 
+**Singular endpoint**:
+A REST API path that operates on one object of a model, such as `/firewall/rule`.
+_Avoid_: item endpoint, detail endpoint
+
+**Plural endpoint**:
+A REST API path that operates on every object of a model at once, and the one a **Lookup** queries, such as `/firewall/rules`. Its spelling isn't always the singular plus `s`.
+_Avoid_: list endpoint, collection endpoint
+
+**Singleton**:
+A model with exactly one object and no create or delete, such as the system hostname, managed as a resource that only updates it.
+_Avoid_: settings resource, global
+
+**Action**:
+An endpoint that does something rather than storing an object, such as reboot, ping, or certificate generation; it never becomes a resource.
+_Avoid_: command, operation
+
 ## Relationships
 
 - Every operation on an existing object starts with a **Lookup** of its **Key**; a positional **API id** is never stored or reused.
 - A stable string **API id** is itself the resource's **Key**.
 - A resource's **Key** is one or more of its fields, or a **Marker** when no field is unique.
 - A child resource's **Key** includes its parent's id.
+- A model that can be created, read, updated and deleted through its **Singular endpoint**, and has a **Plural endpoint**, becomes a resource; the two are paired by model, not by path.
+- A resource is named after its **Singular endpoint**.
 
 ## Flagged ambiguities
 
