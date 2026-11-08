@@ -20,6 +20,14 @@ _Avoid_: search, find
 A provider-written tag in an object's description that serves as its **Key** when the resource has no field that pfSense keeps unique.
 _Avoid_: tag, label
 
+**Apply**:
+Making changes saved in pfSense's configuration take effect on the running system, such as reloading the packet filter.
+_Avoid_: commit, reload, sync
+
+**Staged write**:
+A change saved to pfSense's configuration but not yet applied, so the running system still behaves as before.
+_Avoid_: pending change, dirty config
+
 **Singular endpoint**:
 A REST API path that operates on one object of a model, such as `/firewall/rule`.
 _Avoid_: item endpoint, detail endpoint
@@ -44,6 +52,7 @@ _Avoid_: command, operation
 - A child resource's **Key** includes its parent's id.
 - A model that can be created, read, updated and deleted through its **Singular endpoint**, and has a **Plural endpoint**, becomes a resource; the two are paired by model, not by path.
 - A resource is named after its **Singular endpoint**.
+- Every write the provider makes is followed by its **Apply** in the same request; the provider never leaves a **Staged write** behind.
 
 ## Flagged ambiguities
 
