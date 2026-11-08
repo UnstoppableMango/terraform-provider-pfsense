@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-codegen-spec v0.2.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	github.com/pb33f/go-yaml v0.1.1
-	github.com/pb33f/libopenapi v0.41.8
+	github.com/pb33f/libopenapi v0.42.4
 	github.com/spf13/cobra v1.10.2
 	github.com/unmango/go v0.16.6
 	golang.org/x/tools v0.52.0
@@ -69,7 +69,7 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/oklog/run v1.2.0 // indirect
-	github.com/pb33f/jsonpath v0.8.4 // indirect
+	github.com/pb33f/jsonpath v0.8.5 // indirect
 	github.com/pb33f/ordered-map/v2 v2.3.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
