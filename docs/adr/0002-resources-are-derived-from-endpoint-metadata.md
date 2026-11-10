@@ -28,7 +28,7 @@ Every path and what it maps to is listed in [docs/resource-paths.md](../resource
 | Package | `/system/package` | GET, POST and DELETE but no PATCH; would be a replace-only resource |
 | RESTAPIKey | `/auth/key` | POST and DELETE only; nothing to Read |
 
-Models that pass the rule but have neither a declared Key nor a field that accepts a Marker are not generated (ADR 0001); the table lists them as "no Key yet". There were 44 at this pin until [#62](https://github.com/UnstoppableMango/terraform-provider-pfsense/issues/62) gave 23 of them a Key from a `unique` field and 5 a Marker in `description`, leaving 16.
+Models that pass the rule but have neither a declared Key nor a field that accepts a Marker are not generated (ADR 0001); the table lists them as "no Key yet". There were 44 at this pin until [#62](https://github.com/UnstoppableMango/terraform-provider-pfsense/issues/62) gave 24 of them a Key from `unique` or unique-together fields and 5 a Marker in `description`, leaving 15.
 
 ## Considered options
 
