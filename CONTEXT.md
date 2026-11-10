@@ -28,6 +28,10 @@ _Avoid_: commit, reload, sync
 A change saved to pfSense's configuration but not yet applied, so the running system still behaves as before.
 _Avoid_: pending change, dirty config
 
+**Create-only field**:
+A field pfSense accepts when an object is created but refuses to change afterwards, so changing it means replacing the object.
+_Avoid_: immutable field, non-editable field
+
 **Singular endpoint**:
 A REST API path that operates on one object of a model, such as `/firewall/rule`.
 _Avoid_: item endpoint, detail endpoint
@@ -52,6 +56,7 @@ _Avoid_: command, operation
 - A child resource's **Key** includes its parent's id.
 - A model that can be created, read, updated and deleted through its **Singular endpoint**, and has a **Plural endpoint**, becomes a resource; the two are paired by model, not by path.
 - A resource is named after its **Singular endpoint**.
+- Changing a **Key** field or a **Create-only field** replaces the object.
 - Every write the provider makes is followed by its **Apply** in the same request; the provider never leaves a **Staged write** behind.
 
 ## Flagged ambiguities
