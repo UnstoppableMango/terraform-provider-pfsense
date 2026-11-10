@@ -6,13 +6,14 @@ Decided in [#58](https://github.com/UnstoppableMango/terraform-provider-pfsense/
 
 ## Decision
 
-- Each resource's Key is declared next to its entry in `cmd/gen-config`, because the spec carries no uniqueness metadata. Models whose API id is a stable string (DHCP server, interface, table) use that string API id as the Key; this is the one case where state holds an API id.
+- Each resource's Key is declared next to its entry in `cmd/gen-config`, because the spec carries no uniqueness metadata. The declared Key is a field the REST API's model source marks `unique: true`, which the API enforces on every write. When a model has several, the Key is the one the user sets and rarely changes, usually `name`. A server-assigned field is the Key only when it never changes after create, as with OpenVPN `vpnid`. Models whose API id is a stable string (DHCP server, interface, table) use that string API id as the Key; this is the one case where state holds an API id.
 - A Lookup filters with an exact match and then checks that the returned object's Key fields equal the request, because pfSense ignores an unknown filter key and would match everything.
 - Read: zero matches removes the resource from state; several matches is an error naming the Key and the count. Update and Delete fail on zero or several.
 - Key fields force replacement when changed.
 - Firewall rules are keyed by `tracker`, a whole-second timestamp with no uniqueness check, so the provider spaces rule creates at least one second apart.
-- Models with no unique field but a `descr` are keyed by a **Marker**: ` [tf:<12 hex chars>]` appended to `descr`, stripped from the `descr` attribute and exposed as a computed `marker` attribute. NAT port forwards use this.
-- Models with neither a declared Key nor a `descr` are not generated as resources; the generator lists them in a report instead.
+- Models with no unique field but a `descr` or `description` field are keyed by a **Marker**: ` [tf:<12 hex chars>]` appended to that field, stripped from its attribute and exposed as a computed `marker` attribute. NAT port forwards use this.
+- Models with neither a declared Key nor a field that accepts the Marker are not generated as resources; the generator lists them in a report instead. FreeRADIUS interface is one: its `description` only allows `[a-zA-Z0-9 _,.;:+=()-]`, which rejects the Marker's brackets.
+- Amended by [#62](https://github.com/UnstoppableMango/terraform-provider-pfsense/issues/62): Keys taken from `unique` fields in the model source, and the Marker in `description`.
 - All writes from one provider instance go through one lock, which also serializes the Lookup-then-write sequence between resources in the same apply.
 - Import takes the Key, with child resources prefixed by the parent id and multi-field Keys joined by `/` (`lan/00:11:22:33:44:55`). A Marker-keyed object that has no Marker yet is imported by its current API id and matched on every configured field until the next apply writes its Marker.
 

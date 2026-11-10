@@ -7,7 +7,7 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 - **resource**: generated, with its Key from [ADR 0001](adr/0001-resources-are-identified-by-key-not-api-id.md).
 - **Lookup for**: the Plural endpoint a resource's Lookup queries.
 - **singleton resource**: GET and PATCH only.
-- **not generated**: passes the rule, but has no Key yet and no `descr` for a Marker.
+- **not generated**: passes the rule, but has no Key yet and no `descr` or `description` that accepts a Marker.
 - **excluded**: doesn't fit CRUD; the note says why.
 
 | Path | Methods | Type | Model | Maps to | Notes |
@@ -45,16 +45,16 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/firewall/state` | GET,DELETE | Singular | FirewallState | excluded | read-only state; data source candidate (later) |
 | `/firewall/states` | GET,DELETE | Plural | FirewallState | excluded | read-only state; data source candidate (later) |
 | `/firewall/states/size` | GET,PATCH | Singular | FirewallStatesSize | singleton resource `firewall_states_size` | Create and Update PATCH; Destroy forgets |
-| `/firewall/traffic_shaper` | GET,POST,PATCH,DELETE | Singular | TrafficShaper | not generated | no Key yet; would be `firewall_traffic_shaper` |
-| `/firewall/traffic_shaper/limiter` | GET,POST,PATCH,DELETE | Singular | TrafficShaperLimiter | not generated | no Key yet; would be `firewall_traffic_shaper_limiter` |
+| `/firewall/traffic_shaper` | GET,POST,PATCH,DELETE | Singular | TrafficShaper | resource `firewall_traffic_shaper` | Key: `interface` |
+| `/firewall/traffic_shaper/limiter` | GET,POST,PATCH,DELETE | Singular | TrafficShaperLimiter | resource `firewall_traffic_shaper_limiter` | Key: `name` |
 | `/firewall/traffic_shaper/limiter/bandwidth` | GET,POST,PATCH,DELETE | Singular | TrafficShaperLimiterBandwidth | not generated | no Key yet; would be `firewall_traffic_shaper_limiter_bandwidth`; child of TrafficShaperLimiter |
 | `/firewall/traffic_shaper/limiter/bandwidths` | GET,DELETE | Plural | TrafficShaperLimiterBandwidth | not generated | plural of a model with no Key yet; child of TrafficShaperLimiter |
-| `/firewall/traffic_shaper/limiter/queue` | GET,POST,PATCH,DELETE | Singular | TrafficShaperLimiterQueue | not generated | no Key yet; would be `firewall_traffic_shaper_limiter_queue`; child of TrafficShaperLimiter |
-| `/firewall/traffic_shaper/limiter/queues` | GET,DELETE | Plural | TrafficShaperLimiterQueue | not generated | plural of a model with no Key yet; child of TrafficShaperLimiter |
-| `/firewall/traffic_shaper/limiters` | GET,PUT | Plural | TrafficShaperLimiter | not generated | plural of a model with no Key yet |
-| `/firewall/traffic_shaper/queue` | GET,POST,PATCH,DELETE | Singular | TrafficShaperQueue | not generated | no Key yet; would be `firewall_traffic_shaper_queue`; child of TrafficShaper |
-| `/firewall/traffic_shaper/queues` | GET,DELETE | Plural | TrafficShaperQueue | not generated | plural of a model with no Key yet; child of TrafficShaper |
-| `/firewall/traffic_shapers` | GET,PUT,DELETE | Plural | TrafficShaper | not generated | plural of a model with no Key yet |
+| `/firewall/traffic_shaper/limiter/queue` | GET,POST,PATCH,DELETE | Singular | TrafficShaperLimiterQueue | resource `firewall_traffic_shaper_limiter_queue` | Key: `name`; child of TrafficShaperLimiter |
+| `/firewall/traffic_shaper/limiter/queues` | GET,DELETE | Plural | TrafficShaperLimiterQueue | Lookup for `firewall_traffic_shaper_limiter_queue` | child of TrafficShaperLimiter |
+| `/firewall/traffic_shaper/limiters` | GET,PUT | Plural | TrafficShaperLimiter | Lookup for `firewall_traffic_shaper_limiter` |  |
+| `/firewall/traffic_shaper/queue` | GET,POST,PATCH,DELETE | Singular | TrafficShaperQueue | resource `firewall_traffic_shaper_queue` | Key: `name`; child of TrafficShaper |
+| `/firewall/traffic_shaper/queues` | GET,DELETE | Plural | TrafficShaperQueue | Lookup for `firewall_traffic_shaper_queue` | child of TrafficShaper |
+| `/firewall/traffic_shapers` | GET,PUT,DELETE | Plural | TrafficShaper | Lookup for `firewall_traffic_shaper` |  |
 | `/firewall/virtual_ip` | GET,POST,PATCH,DELETE | Singular | VirtualIP | resource `firewall_virtual_ip` | Key: Marker |
 | `/firewall/virtual_ip/apply` | GET,POST | Singular | VirtualIPApply | excluded | apply endpoint; when to apply is #59 |
 | `/firewall/virtual_ips` | GET,DELETE | Plural | VirtualIP | Lookup for `firewall_virtual_ip` |  |
@@ -77,8 +77,8 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/routing/gateway` | GET,POST,PATCH,DELETE | Singular | RoutingGateway | resource `routing_gateway` | Key: Marker |
 | `/routing/gateway/default` | GET,PATCH | Singular | DefaultGateway | singleton resource `routing_gateway_default` | Create and Update PATCH; Destroy forgets |
 | `/routing/gateway/group` | GET,POST,PATCH,DELETE | Singular | RoutingGatewayGroup | resource `routing_gateway_group` | Key: Marker |
-| `/routing/gateway/group/priorities` | GET,DELETE | Plural | RoutingGatewayGroupPriority | not generated | plural of a model with no Key yet; child of RoutingGatewayGroup |
-| `/routing/gateway/group/priority` | GET,POST,PATCH,DELETE | Singular | RoutingGatewayGroupPriority | not generated | no Key yet; would be `routing_gateway_group_priority`; child of RoutingGatewayGroup |
+| `/routing/gateway/group/priorities` | GET,DELETE | Plural | RoutingGatewayGroupPriority | Lookup for `routing_gateway_group_priority` | child of RoutingGatewayGroup |
+| `/routing/gateway/group/priority` | GET,POST,PATCH,DELETE | Singular | RoutingGatewayGroupPriority | resource `routing_gateway_group_priority` | Key: `gateway`; child of RoutingGatewayGroup |
 | `/routing/gateway/groups` | GET,DELETE | Plural | RoutingGatewayGroup | Lookup for `routing_gateway_group` |  |
 | `/routing/gateways` | GET,DELETE | Plural | RoutingGateway | Lookup for `routing_gateway` |  |
 | `/routing/static_route` | GET,POST,PATCH,DELETE | Singular | StaticRoute | resource `routing_static_route` | Key: Marker |
@@ -96,19 +96,19 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/services/acme/certificate/renewals` | GET | Plural | ACMECertificateRenew | excluded | plural of an excluded model; needs pfSense-pkg-acme |
 | `/services/acme/certificates` | GET,PUT,DELETE | Plural | ACMECertificate | Lookup for `services_acme_certificate` | needs pfSense-pkg-acme |
 | `/services/acme/settings` | GET,PATCH | Singular | ACMESettings | singleton resource `services_acme_settings` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-acme |
-| `/services/bind/access_list` | GET,POST,PATCH,DELETE | Singular | BINDAccessList | not generated | no Key yet; would be `services_bind_access_list`; needs pfSense-pkg-bind |
-| `/services/bind/access_list/entries` | GET,DELETE | Plural | BINDAccessListEntry | not generated | plural of a model with no Key yet; child of BINDAccessList; needs pfSense-pkg-bind |
-| `/services/bind/access_list/entry` | GET,POST,PATCH,DELETE | Singular | BINDAccessListEntry | not generated | no Key yet; would be `services_bind_access_list_entry`; child of BINDAccessList; needs pfSense-pkg-bind |
-| `/services/bind/access_lists` | GET,PUT,DELETE | Plural | BINDAccessList | not generated | plural of a model with no Key yet; needs pfSense-pkg-bind |
+| `/services/bind/access_list` | GET,POST,PATCH,DELETE | Singular | BINDAccessList | resource `services_bind_access_list` | Key: `name`; needs pfSense-pkg-bind |
+| `/services/bind/access_list/entries` | GET,DELETE | Plural | BINDAccessListEntry | Lookup for `services_bind_access_list_entry` | child of BINDAccessList; needs pfSense-pkg-bind |
+| `/services/bind/access_list/entry` | GET,POST,PATCH,DELETE | Singular | BINDAccessListEntry | resource `services_bind_access_list_entry` | Key: Marker in `description`; child of BINDAccessList; needs pfSense-pkg-bind |
+| `/services/bind/access_lists` | GET,PUT,DELETE | Plural | BINDAccessList | Lookup for `services_bind_access_list` | needs pfSense-pkg-bind |
 | `/services/bind/settings` | GET,PATCH | Singular | BINDSettings | singleton resource `services_bind_settings` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-bind |
 | `/services/bind/sync/remote_host` | GET,POST,PATCH,DELETE | Singular | BINDSyncRemoteHost | not generated | no Key yet; would be `services_bind_sync_remote_host`; needs pfSense-pkg-bind |
 | `/services/bind/sync/remote_hosts` | GET,PUT,DELETE | Plural | BINDSyncRemoteHost | not generated | plural of a model with no Key yet; needs pfSense-pkg-bind |
 | `/services/bind/sync/settings` | GET,PATCH | Singular | BINDSyncSettings | singleton resource `services_bind_sync_settings` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-bind |
 | `/services/bind/view` | GET,POST,PATCH,DELETE | Singular | BINDView | resource `services_bind_view` | Key: Marker; needs pfSense-pkg-bind |
 | `/services/bind/views` | GET,PUT,DELETE | Plural | BINDView | Lookup for `services_bind_view` | needs pfSense-pkg-bind |
-| `/services/bind/zone` | GET,POST,PATCH,DELETE | Singular | BINDZone | not generated | no Key yet; would be `services_bind_zone`; needs pfSense-pkg-bind |
+| `/services/bind/zone` | GET,POST,PATCH,DELETE | Singular | BINDZone | resource `services_bind_zone` | Key: `name`; needs pfSense-pkg-bind |
 | `/services/bind/zone/record` | GET,POST,PATCH,DELETE | Singular | BINDZoneRecord | excluded | no plural endpoint to Lookup on; child of BINDZone; needs pfSense-pkg-bind |
-| `/services/bind/zones` | GET,PUT,DELETE | Plural | BINDZone | not generated | plural of a model with no Key yet; needs pfSense-pkg-bind |
+| `/services/bind/zones` | GET,PUT,DELETE | Plural | BINDZone | Lookup for `services_bind_zone` | needs pfSense-pkg-bind |
 | `/services/cron/job` | GET,POST,PATCH,DELETE | Singular | CronJob | not generated | no Key yet; would be `services_cron_job`; needs pfSense-pkg-Cron |
 | `/services/cron/jobs` | GET,PUT,DELETE | Plural | CronJob | not generated | plural of a model with no Key yet; needs pfSense-pkg-Cron |
 | `/services/dhcp_relay` | GET,PATCH | Singular | DHCPRelay | singleton resource `services_dhcp_relay` | Create and Update PATCH; Destroy forgets |
@@ -117,20 +117,20 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/services/dhcp_server/address_pools` | GET,DELETE | Plural | DHCPServerAddressPool | not generated | plural of a model with no Key yet; child of DHCPServer |
 | `/services/dhcp_server/apply` | GET,POST | Singular | DHCPServerApply | excluded | apply endpoint; when to apply is #59 |
 | `/services/dhcp_server/backend` | PATCH | Singular | DHCPServerBackend | excluded | PATCH only, nothing to Read |
-| `/services/dhcp_server/custom_option` | GET,POST,PATCH,DELETE | Singular | DHCPServerCustomOption | not generated | no Key yet; would be `services_dhcp_server_custom_option`; child of DHCPServer |
-| `/services/dhcp_server/custom_options` | GET,DELETE | Plural | DHCPServerCustomOption | not generated | plural of a model with no Key yet; child of DHCPServer |
+| `/services/dhcp_server/custom_option` | GET,POST,PATCH,DELETE | Singular | DHCPServerCustomOption | resource `services_dhcp_server_custom_option` | Key: `number`; child of DHCPServer |
+| `/services/dhcp_server/custom_options` | GET,DELETE | Plural | DHCPServerCustomOption | Lookup for `services_dhcp_server_custom_option` | child of DHCPServer |
 | `/services/dhcp_server/static_mapping` | GET,POST,PATCH,DELETE | Singular | DHCPServerStaticMapping | resource `services_dhcp_server_static_mapping` | Key: `parent_id` + `mac`; child of DHCPServer |
 | `/services/dhcp_server/static_mappings` | GET,DELETE | Plural | DHCPServerStaticMapping | Lookup for `services_dhcp_server_static_mapping` | child of DHCPServer |
 | `/services/dhcp_servers` | GET,PUT | Plural | DHCPServer | Lookup for `services_dhcp_server` |  |
 | `/services/dns_forwarder/apply` | GET,POST | Singular | DNSForwarderApply | excluded | apply endpoint; when to apply is #59 |
 | `/services/dns_forwarder/host_override` | GET,POST,PATCH,DELETE | Singular | DNSForwarderHostOverride | resource `services_dns_forwarder_host_override` | Key: Marker |
-| `/services/dns_forwarder/host_override/alias` | GET,POST,PATCH,DELETE | Singular | DNSForwarderHostOverrideAlias | not generated | no Key yet; would be `services_dns_forwarder_host_override_alias`; child of DNSForwarderHostOverride |
-| `/services/dns_forwarder/host_override/aliases` | GET,DELETE | Plural | DNSForwarderHostOverrideAlias | not generated | plural of a model with no Key yet; child of DNSForwarderHostOverride |
+| `/services/dns_forwarder/host_override/alias` | GET,POST,PATCH,DELETE | Singular | DNSForwarderHostOverrideAlias | resource `services_dns_forwarder_host_override_alias` | Key: Marker in `description`; child of DNSForwarderHostOverride |
+| `/services/dns_forwarder/host_override/aliases` | GET,DELETE | Plural | DNSForwarderHostOverrideAlias | Lookup for `services_dns_forwarder_host_override_alias` | child of DNSForwarderHostOverride |
 | `/services/dns_forwarder/host_overrides` | GET,PUT,DELETE | Plural | DNSForwarderHostOverride | Lookup for `services_dns_forwarder_host_override` |  |
-| `/services/dns_resolver/access_list` | GET,POST,PATCH,DELETE | Singular | DNSResolverAccessList | not generated | no Key yet; would be `services_dns_resolver_access_list` |
-| `/services/dns_resolver/access_list/network` | GET,POST,PATCH,DELETE | Singular | DNSResolverAccessListNetwork | not generated | no Key yet; would be `services_dns_resolver_access_list_network`; child of DNSResolverAccessList |
-| `/services/dns_resolver/access_list/networks` | GET,DELETE | Plural | DNSResolverAccessListNetwork | not generated | plural of a model with no Key yet; child of DNSResolverAccessList |
-| `/services/dns_resolver/access_lists` | GET,PUT,DELETE | Plural | DNSResolverAccessList | not generated | plural of a model with no Key yet |
+| `/services/dns_resolver/access_list` | GET,POST,PATCH,DELETE | Singular | DNSResolverAccessList | resource `services_dns_resolver_access_list` | Key: Marker in `description` |
+| `/services/dns_resolver/access_list/network` | GET,POST,PATCH,DELETE | Singular | DNSResolverAccessListNetwork | resource `services_dns_resolver_access_list_network` | Key: Marker in `description`; child of DNSResolverAccessList |
+| `/services/dns_resolver/access_list/networks` | GET,DELETE | Plural | DNSResolverAccessListNetwork | Lookup for `services_dns_resolver_access_list_network` | child of DNSResolverAccessList |
+| `/services/dns_resolver/access_lists` | GET,PUT,DELETE | Plural | DNSResolverAccessList | Lookup for `services_dns_resolver_access_list` |  |
 | `/services/dns_resolver/apply` | GET,POST | Singular | DNSResolverApply | excluded | apply endpoint; when to apply is #59 |
 | `/services/dns_resolver/domain_override` | GET,POST,PATCH,DELETE | Singular | DNSResolverDomainOverride | resource `services_dns_resolver_domain_override` | Key: Marker |
 | `/services/dns_resolver/domain_overrides` | GET,PUT,DELETE | Plural | DNSResolverDomainOverride | Lookup for `services_dns_resolver_domain_override` |  |
@@ -139,29 +139,29 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/services/dns_resolver/host_override/aliases` | GET,DELETE | Plural | DNSResolverHostOverrideAlias | Lookup for `services_dns_resolver_host_override_alias` | child of DNSResolverHostOverride |
 | `/services/dns_resolver/host_overrides` | GET,PUT,DELETE | Plural | DNSResolverHostOverride | Lookup for `services_dns_resolver_host_override` |  |
 | `/services/dns_resolver/settings` | GET,PATCH | Singular | DNSResolverSettings | singleton resource `services_dns_resolver_settings` | Create and Update PATCH; Destroy forgets |
-| `/services/freeradius/client` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSClient | not generated | no Key yet; would be `services_freeradius_client`; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/clients` | GET,PUT,DELETE | Plural | FreeRADIUSClient | not generated | plural of a model with no Key yet; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/client` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSClient | resource `services_freeradius_client` | Key: `addr`; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/clients` | GET,PUT,DELETE | Plural | FreeRADIUSClient | Lookup for `services_freeradius_client` | needs pfSense-pkg-freeradius3 |
 | `/services/freeradius/eap` | GET,PATCH | Singular | FreeRADIUSEAP | singleton resource `services_freeradius_eap` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/interface` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSInterface | not generated | no Key yet; would be `services_freeradius_interface`; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/interface` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSInterface | not generated | no Key yet; would be `services_freeradius_interface`; its `description` rejects the Marker's brackets; needs pfSense-pkg-freeradius3 |
 | `/services/freeradius/interfaces` | GET,PUT,DELETE | Plural | FreeRADIUSInterface | not generated | plural of a model with no Key yet; needs pfSense-pkg-freeradius3 |
 | `/services/freeradius/ldap` | GET,PATCH | Singular | FreeRADIUSLDAP | singleton resource `services_freeradius_ldap` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/mac` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSMAC | not generated | no Key yet; would be `services_freeradius_mac`; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/macs` | GET,PUT,DELETE | Plural | FreeRADIUSMAC | not generated | plural of a model with no Key yet; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/user` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSUser | not generated | no Key yet; would be `services_freeradius_user`; needs pfSense-pkg-freeradius3 |
-| `/services/freeradius/users` | GET,PUT,DELETE | Plural | FreeRADIUSUser | not generated | plural of a model with no Key yet; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/mac` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSMAC | resource `services_freeradius_mac` | Key: `mac`; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/macs` | GET,PUT,DELETE | Plural | FreeRADIUSMAC | Lookup for `services_freeradius_mac` | needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/user` | GET,POST,PATCH,DELETE | Singular | FreeRADIUSUser | resource `services_freeradius_user` | Key: `username`; needs pfSense-pkg-freeradius3 |
+| `/services/freeradius/users` | GET,PUT,DELETE | Plural | FreeRADIUSUser | Lookup for `services_freeradius_user` | needs pfSense-pkg-freeradius3 |
 | `/services/haproxy/apply` | GET,POST | Singular | HAProxyApply | excluded | apply endpoint; when to apply is #59; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backend` | GET,POST,PATCH,DELETE | Singular | HAProxyBackend | not generated | no Key yet; would be `services_haproxy_backend`; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backend` | GET,POST,PATCH,DELETE | Singular | HAProxyBackend | resource `services_haproxy_backend` | Key: `name`; needs pfSense-pkg-haproxy |
 | `/services/haproxy/backend/acl` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendACL | not generated | no Key yet; would be `services_haproxy_backend_acl`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/backend/acls` | GET,DELETE | Plural | HAProxyBackendACL | not generated | plural of a model with no Key yet; child of HAProxyBackend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/backend/action` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendAction | not generated | no Key yet; would be `services_haproxy_backend_action`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/backend/actions` | GET,DELETE | Plural | HAProxyBackendAction | not generated | plural of a model with no Key yet; child of HAProxyBackend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backend/error_file` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendErrorFile | not generated | no Key yet; would be `services_haproxy_backend_error_file`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backend/errorfiles` | GET,DELETE | Plural | HAProxyBackendErrorFile | not generated | plural of a model with no Key yet; child of HAProxyBackend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backend/server` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendServer | not generated | no Key yet; would be `services_haproxy_backend_server`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backend/servers` | GET,DELETE | Plural | HAProxyBackendServer | not generated | plural of a model with no Key yet; child of HAProxyBackend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/backends` | GET,PUT,DELETE | Plural | HAProxyBackend | not generated | plural of a model with no Key yet; needs pfSense-pkg-haproxy |
-| `/services/haproxy/file` | GET,POST,PATCH,DELETE | Singular | HAProxyFile | not generated | no Key yet; would be `services_haproxy_file`; needs pfSense-pkg-haproxy |
-| `/services/haproxy/files` | GET,PUT,DELETE | Plural | HAProxyFile | not generated | plural of a model with no Key yet; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backend/error_file` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendErrorFile | resource `services_haproxy_backend_error_file` | Key: `errorcode`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backend/errorfiles` | GET,DELETE | Plural | HAProxyBackendErrorFile | Lookup for `services_haproxy_backend_error_file` | child of HAProxyBackend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backend/server` | GET,POST,PATCH,DELETE | Singular | HAProxyBackendServer | resource `services_haproxy_backend_server` | Key: `name`; child of HAProxyBackend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backend/servers` | GET,DELETE | Plural | HAProxyBackendServer | Lookup for `services_haproxy_backend_server` | child of HAProxyBackend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/backends` | GET,PUT,DELETE | Plural | HAProxyBackend | Lookup for `services_haproxy_backend` | needs pfSense-pkg-haproxy |
+| `/services/haproxy/file` | GET,POST,PATCH,DELETE | Singular | HAProxyFile | resource `services_haproxy_file` | Key: `name`; needs pfSense-pkg-haproxy |
+| `/services/haproxy/files` | GET,PUT,DELETE | Plural | HAProxyFile | Lookup for `services_haproxy_file` | needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontend` | GET,POST,PATCH,DELETE | Singular | HAProxyFrontend | resource `services_haproxy_frontend` | Key: Marker; needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontend/acl` | GET,POST,PATCH,DELETE | Singular | HAProxyFrontendACL | not generated | no Key yet; would be `services_haproxy_frontend_acl`; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontend/acls` | GET,DELETE | Plural | HAProxyFrontendACL | not generated | plural of a model with no Key yet; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
@@ -171,19 +171,19 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/services/haproxy/frontend/addresses` | GET,DELETE | Plural | HAProxyFrontendAddress | not generated | plural of a model with no Key yet; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontend/certificate` | GET,POST,PATCH,DELETE | Singular | HAProxyFrontendCertificate | not generated | no Key yet; would be `services_haproxy_frontend_certificate`; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontend/certificates` | GET,DELETE | Plural | HAProxyFrontendCertificate | not generated | plural of a model with no Key yet; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/frontend/error_file` | GET,POST,PATCH,DELETE | Singular | HAProxyFrontendErrorFile | not generated | no Key yet; would be `services_haproxy_frontend_error_file`; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
-| `/services/haproxy/frontend/error_files` | GET,DELETE | Plural | HAProxyFrontendErrorFile | not generated | plural of a model with no Key yet; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/frontend/error_file` | GET,POST,PATCH,DELETE | Singular | HAProxyFrontendErrorFile | resource `services_haproxy_frontend_error_file` | Key: `errorcode`; child of HAProxyFrontend; needs pfSense-pkg-haproxy |
+| `/services/haproxy/frontend/error_files` | GET,DELETE | Plural | HAProxyFrontendErrorFile | Lookup for `services_haproxy_frontend_error_file` | child of HAProxyFrontend; needs pfSense-pkg-haproxy |
 | `/services/haproxy/frontends` | GET,PUT,DELETE | Plural | HAProxyFrontend | Lookup for `services_haproxy_frontend` | needs pfSense-pkg-haproxy |
 | `/services/haproxy/settings` | GET,PATCH | Singular | HAProxySettings | singleton resource `services_haproxy_settings` | Create and Update PATCH; Destroy forgets; needs pfSense-pkg-haproxy |
-| `/services/haproxy/settings/dns_resolver` | GET,POST,PATCH,DELETE | Singular | HAProxyDNSResolver | not generated | no Key yet; would be `services_haproxy_settings_dns_resolver`; child of HAProxySettings; needs pfSense-pkg-haproxy |
-| `/services/haproxy/settings/dns_resolvers` | GET,DELETE | Plural | HAProxyDNSResolver | not generated | plural of a model with no Key yet; child of HAProxySettings; needs pfSense-pkg-haproxy |
-| `/services/haproxy/settings/email_mailer` | GET,POST,PATCH,DELETE | Singular | HAProxyEmailMailer | not generated | no Key yet; would be `services_haproxy_settings_email_mailer`; child of HAProxySettings; needs pfSense-pkg-haproxy |
-| `/services/haproxy/settings/email_mailers` | GET,DELETE | Plural | HAProxyEmailMailer | not generated | plural of a model with no Key yet; child of HAProxySettings; needs pfSense-pkg-haproxy |
+| `/services/haproxy/settings/dns_resolver` | GET,POST,PATCH,DELETE | Singular | HAProxyDNSResolver | resource `services_haproxy_settings_dns_resolver` | Key: `name`; child of HAProxySettings; needs pfSense-pkg-haproxy |
+| `/services/haproxy/settings/dns_resolvers` | GET,DELETE | Plural | HAProxyDNSResolver | Lookup for `services_haproxy_settings_dns_resolver` | child of HAProxySettings; needs pfSense-pkg-haproxy |
+| `/services/haproxy/settings/email_mailer` | GET,POST,PATCH,DELETE | Singular | HAProxyEmailMailer | resource `services_haproxy_settings_email_mailer` | Key: `name`; child of HAProxySettings; needs pfSense-pkg-haproxy |
+| `/services/haproxy/settings/email_mailers` | GET,DELETE | Plural | HAProxyEmailMailer | Lookup for `services_haproxy_settings_email_mailer` | child of HAProxySettings; needs pfSense-pkg-haproxy |
 | `/services/ntp/settings` | GET,PATCH | Singular | NTPSettings | singleton resource `services_ntp_settings` | Create and Update PATCH; Destroy forgets |
 | `/services/ntp/time_server` | GET,POST,PATCH,DELETE | Singular | NTPTimeServer | not generated | no Key yet; would be `services_ntp_time_server` |
 | `/services/ntp/time_servers` | GET,PUT,DELETE | Plural | NTPTimeServer | not generated | plural of a model with no Key yet |
-| `/services/service_watchdog` | GET,POST,PATCH,DELETE | Singular | ServiceWatchdog | not generated | no Key yet; would be `services_service_watchdog`; needs pfSense-pkg-Service_Watchdog |
-| `/services/service_watchdogs` | GET,PUT,DELETE | Plural | ServiceWatchdog | not generated | plural of a model with no Key yet; needs pfSense-pkg-Service_Watchdog |
+| `/services/service_watchdog` | GET,POST,PATCH,DELETE | Singular | ServiceWatchdog | resource `services_service_watchdog` | Key: `name`; needs pfSense-pkg-Service_Watchdog |
+| `/services/service_watchdogs` | GET,PUT,DELETE | Plural | ServiceWatchdog | Lookup for `services_service_watchdog` | needs pfSense-pkg-Service_Watchdog |
 | `/services/ssh` | GET,PATCH | Singular | SSH | singleton resource `services_ssh` | Create and Update PATCH; Destroy forgets |
 | `/services/wake_on_lan/send` | POST | Singular | WakeOnLANSend | excluded | action (POST only) |
 | `/status/carp` | GET,PATCH | Singular | CARP | singleton resource `status_carp` | Create and Update PATCH; Destroy forgets |
@@ -243,10 +243,10 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/system/version` | GET | Singular | SystemVersion | excluded | read-only state; data source candidate (later) |
 | `/system/webgui/settings` | GET,PATCH | Singular | WebGUISettings | singleton resource `system_webgui_settings` | Create and Update PATCH; Destroy forgets |
 | `/user` | GET,POST,PATCH,DELETE | Singular | User | resource `user` | Key: Marker |
-| `/user/auth_server` | GET,POST,PATCH,DELETE | Singular | AuthServer | not generated | no Key yet; would be `user_auth_server` |
-| `/user/auth_servers` | GET,PUT,DELETE | Plural | AuthServer | not generated | plural of a model with no Key yet |
-| `/user/group` | GET,POST,PATCH,DELETE | Singular | UserGroup | not generated | no Key yet; would be `user_group` |
-| `/user/groups` | GET,PUT,DELETE | Plural | UserGroup | not generated | plural of a model with no Key yet |
+| `/user/auth_server` | GET,POST,PATCH,DELETE | Singular | AuthServer | resource `user_auth_server` | Key: `name` |
+| `/user/auth_servers` | GET,PUT,DELETE | Plural | AuthServer | Lookup for `user_auth_server` |  |
+| `/user/group` | GET,POST,PATCH,DELETE | Singular | UserGroup | resource `user_group` | Key: `name` |
+| `/user/groups` | GET,PUT,DELETE | Plural | UserGroup | Lookup for `user_group` |  |
 | `/users` | GET,DELETE | Plural | User | Lookup for `user` |  |
 | `/vpn/ipsec/apply` | GET,POST | Singular | IPsecApply | excluded | apply endpoint; when to apply is #59 |
 | `/vpn/ipsec/phase1` | GET,POST,PATCH,DELETE | Singular | IPsecPhase1 | resource `vpn_ipsec_phase1` | Key: Marker |
@@ -257,15 +257,15 @@ This is a snapshot of the rule applied to v2.8.1, and has to be regenerated when
 | `/vpn/ipsec/phase2/encryption` | GET,POST,PATCH,DELETE | Singular | IPsecPhase2Encryption | not generated | no Key yet; would be `vpn_ipsec_phase2_encryption`; child of IPsecPhase2 |
 | `/vpn/ipsec/phase2/encryptions` | GET,DELETE | Plural | IPsecPhase2Encryption | not generated | plural of a model with no Key yet; child of IPsecPhase2 |
 | `/vpn/ipsec/phase2s` | GET,PUT,DELETE | Plural | IPsecPhase2 | Lookup for `vpn_ipsec_phase2` |  |
-| `/vpn/openvpn/client` | GET,POST,PATCH,DELETE | Singular | OpenVPNClient | not generated | no Key yet; would be `vpn_openvpn_client` |
+| `/vpn/openvpn/client` | GET,POST,PATCH,DELETE | Singular | OpenVPNClient | resource `vpn_openvpn_client` | Key: `vpnid`, assigned by pfSense on create |
 | `/vpn/openvpn/client_export` | POST | Singular | OpenVPNClientExport | excluded | action (POST only); needs pfSense-pkg-openvpn-client-export |
 | `/vpn/openvpn/client_export/config` | GET,POST,PATCH,DELETE | Singular | OpenVPNClientExportConfig | not generated | no Key yet; would be `vpn_openvpn_client_export_config`; needs pfSense-pkg-openvpn-client-export |
 | `/vpn/openvpn/client_export/configs` | GET,PUT,DELETE | Plural | OpenVPNClientExportConfig | not generated | plural of a model with no Key yet; needs pfSense-pkg-openvpn-client-export |
-| `/vpn/openvpn/clients` | GET,DELETE | Plural | OpenVPNClient | not generated | plural of a model with no Key yet |
-| `/vpn/openvpn/cso` | GET,POST,PATCH,DELETE | Singular | OpenVPNClientSpecificOverride | not generated | no Key yet; would be `vpn_openvpn_cso` |
-| `/vpn/openvpn/csos` | GET,DELETE | Plural | OpenVPNClientSpecificOverride | not generated | plural of a model with no Key yet |
-| `/vpn/openvpn/server` | GET,POST,PATCH,DELETE | Singular | OpenVPNServer | not generated | no Key yet; would be `vpn_openvpn_server` |
-| `/vpn/openvpn/servers` | GET,DELETE | Plural | OpenVPNServer | not generated | plural of a model with no Key yet |
+| `/vpn/openvpn/clients` | GET,DELETE | Plural | OpenVPNClient | Lookup for `vpn_openvpn_client` |  |
+| `/vpn/openvpn/cso` | GET,POST,PATCH,DELETE | Singular | OpenVPNClientSpecificOverride | resource `vpn_openvpn_cso` | Key: Marker in `description` |
+| `/vpn/openvpn/csos` | GET,DELETE | Plural | OpenVPNClientSpecificOverride | Lookup for `vpn_openvpn_cso` |  |
+| `/vpn/openvpn/server` | GET,POST,PATCH,DELETE | Singular | OpenVPNServer | resource `vpn_openvpn_server` | Key: `vpnid`, assigned by pfSense on create |
+| `/vpn/openvpn/servers` | GET,DELETE | Plural | OpenVPNServer | Lookup for `vpn_openvpn_server` |  |
 | `/vpn/wireguard/apply` | GET,POST | Singular | WireGuardApply | excluded | apply endpoint; when to apply is #59 |
 | `/vpn/wireguard/peer` | GET,POST,PATCH,DELETE | Singular | WireGuardPeer | resource `vpn_wireguard_peer` | Key: Marker; needs pfSense-pkg-WireGuard |
 | `/vpn/wireguard/peer/allowed_ip` | GET,POST,PATCH,DELETE | Singular | WireGuardPeerAllowedIP | resource `vpn_wireguard_peer_allowed_ip` | Key: Marker; child of WireGuardPeer; needs pfSense-pkg-WireGuard |
