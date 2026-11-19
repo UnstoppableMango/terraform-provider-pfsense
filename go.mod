@@ -8,8 +8,8 @@ require (
 	charm.land/log/v2 v2.0.1
 	github.com/hashicorp/terraform-plugin-codegen-spec v0.2.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
-	github.com/pb33f/go-yaml v0.1.1
-	github.com/pb33f/libopenapi v0.42.4
+	github.com/pb33f/go-yaml v0.2.0
+	github.com/pb33f/libopenapi v0.43.2
 	github.com/spf13/cobra v1.10.2
 	github.com/unmango/go v0.16.6
 	golang.org/x/tools v0.52.0
@@ -85,7 +85,7 @@ require (
 	golang.org/x/exp v0.0.0-20251219203646-944ab1f22d93 // indirect
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/net v0.61.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
